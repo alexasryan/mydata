@@ -376,7 +376,7 @@ function setupAuthScreen(){
 
 /* ===== РОУТЕР ===== */
 const VIEWS={dashboard:{title:'Обзор',render:renderDashboard},notes:{title:'Заметки',render:renderNotes},finance:{title:'Финансы',render:renderFinance},media:{title:'Медиа',render:renderMedia}};
-function switchView(v){if(!VIEWS[v])v='dashboard';state.view=v;$('#view-dashboard,#view-notes,#view-finance,#view-media').split(',').forEach(s=>$(s).classList.add('hidden'));$('#view-'+v).classList.remove('hidden');$('#page-title').textContent=VIEWS[v].title;$$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));closeMobileSidebar();VIEWS[v].render();}
+function switchView(v){if(!VIEWS[v])v='dashboard';state.view=v;['view-dashboard','view-notes','view-finance','view-media'].forEach(s=>$('#'+s).classList.add('hidden'));$('#view-'+v).classList.remove('hidden');$('#page-title').textContent=VIEWS[v].title;$$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));closeMobileSidebar();VIEWS[v].render();}
 function closeMobileSidebar(){$('#sidebar').classList.add('-translate-x-full');$('#sidebar').classList.remove('translate-x-0');$('#sidebar-overlay').classList.add('hidden');}
 function openMobileSidebar(){$('#sidebar').classList.remove('-translate-x-full');$('#sidebar').classList.add('translate-x-0');$('#sidebar-overlay').classList.remove('hidden');}
 
