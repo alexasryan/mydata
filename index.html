@@ -6,37 +6,25 @@
   <meta name="theme-color" content="#F5F5F7" />
   <title>Personal DB</title>
 
-  <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <!-- Marked — Markdown parser (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
   <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            bg: '#F5F5F7',
-            ink: '#1D1D1F',
-            accent: '#007AFF',
-          },
-          fontFamily: {
-            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
-          },
-        }
-      }
+      theme: { extend: {
+        colors: { bg:'#F5F5F7', ink:'#1D1D1F', accent:'#007AFF' },
+        fontFamily: { sans: ['Inter','-apple-system','BlinkMacSystemFont','SF Pro Display','system-ui','sans-serif'] },
+      }}
     }
   </script>
 
   <style type="text/tailwindcss">
-    @layer base {
-      body { @apply bg-bg text-ink antialiased; }
-    }
+    @layer base { body { @apply bg-bg text-ink antialiased; } }
     .card { @apply bg-white rounded-2xl border border-black/5 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_0_0_0.5px_rgba(0,0,0,0.04)]; }
     .glass { @apply bg-white/70 backdrop-blur-xl; }
-    .input { @apply w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-gray-400 focus:border-accent focus:ring-4 focus:ring-accent/15; }
+    .input { @apply w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-gray-300 focus:border-accent focus:ring-4 focus:ring-accent/15; }
     .label { @apply block text-xs font-medium text-gray-500 mb-1.5; }
     .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none; }
     .btn-primary { @apply bg-accent text-white hover:bg-[#0066d6] shadow-sm; }
@@ -44,7 +32,8 @@
     .btn-danger { @apply bg-[#FF3B30] text-white hover:bg-[#e0332a]; }
     .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 transition cursor-pointer hover:bg-black/[0.04]; }
     .nav-item.active { @apply bg-accent/10 text-accent; }
-    .chip { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium; }
+    .chip { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap; }
+    .folder-chip { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition cursor-pointer border; }
   </style>
 
   <style>
@@ -53,48 +42,37 @@
     *::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 999px; }
     *::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }
     *::-webkit-scrollbar-track { background: transparent; }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes popIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-    @keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: none; } }
-    .fade-in { animation: fadeIn .25s ease both; }
-    .pop-in { animation: popIn .28s cubic-bezier(.2,.8,.2,1) both; }
-    .slide-up { animation: slideUp .35s cubic-bezier(.2,.8,.2,1) both; }
-    .toast-in { animation: toastIn .3s cubic-bezier(.2,.8,.2,1) both; }
-
-    .md > *:first-child { margin-top: 0; }
-    .md > *:last-child { margin-bottom: 0; }
-    .md h1,.md h2,.md h3 { font-weight: 600; letter-spacing: -0.01em; margin: 1em 0 .4em; }
-    .md h1 { font-size: 1.4rem; }
-    .md h2 { font-size: 1.2rem; }
-    .md h3 { font-size: 1.05rem; }
-    .md p { margin: .5em 0; line-height: 1.6; }
-    .md a { color: #007AFF; text-decoration: underline; }
-    .md ul,.md ol { margin: .5em 0; padding-left: 1.4em; }
-    .md ul { list-style: disc; }
-    .md ol { list-style: decimal; }
-    .md li { margin: .2em 0; line-height: 1.55; }
-    .md code { background: rgba(0,0,0,.06); padding: .12em .4em; border-radius: 6px; font-size: .9em; font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
-    .md pre { background: #1d1d1f; color: #f5f5f7; padding: 1em; border-radius: 12px; overflow: auto; margin: .6em 0; }
-    .md pre code { background: transparent; padding: 0; color: inherit; }
-    .md blockquote { border-left: 3px solid #d1d1d6; padding-left: 1em; color: #6e6e73; margin: .6em 0; }
-    .md img { max-width: 100%; border-radius: 10px; }
-    .md hr { border: none; border-top: 1px solid rgba(0,0,0,.1); margin: 1em 0; }
-    .md table { width: 100%; border-collapse: collapse; margin: .6em 0; }
-    .md th,.md td { border: 1px solid rgba(0,0,0,.1); padding: .4em .6em; text-align: left; }
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes popIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:none}}
+    .fade-in{animation:fadeIn .25s ease both} .pop-in{animation:popIn .28s cubic-bezier(.2,.8,.2,1) both}
+    .slide-up{animation:slideUp .35s cubic-bezier(.2,.8,.2,1) both} .toast-in{animation:toastIn .3s cubic-bezier(.2,.8,.2,1) both}
+    .md>*:first-child{margin-top:0}.md>*:last-child{margin-bottom:0}
+    .md h1,.md h2,.md h3{font-weight:600;letter-spacing:-.01em;margin:1em 0 .4em}
+    .md h1{font-size:1.4rem}.md h2{font-size:1.2rem}.md h3{font-size:1.05rem}
+    .md p{margin:.5em 0;line-height:1.6}
+    .md a{color:#007AFF;text-decoration:underline}
+    .md ul,.md ol{margin:.5em 0;padding-left:1.4em}.md ul{list-style:disc}.md ol{list-style:decimal}
+    .md li{margin:.2em 0;line-height:1.55}
+    .md code{background:rgba(0,0,0,.06);padding:.12em .4em;border-radius:6px;font-size:.9em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .md pre{background:#1d1d1f;color:#f5f5f7;padding:1em;border-radius:12px;overflow:auto;margin:.6em 0}
+    .md pre code{background:transparent;padding:0;color:inherit}
+    .md blockquote{border-left:3px solid #d1d1d6;padding-left:1em;color:#6e6e73;margin:.6em 0}
+    .md img{max-width:100%;border-radius:10px}.md hr{border:none;border-top:1px solid rgba(0,0,0,.1);margin:1em 0}
+    .md table{width:100%;border-collapse:collapse;margin:.6em 0}
+    .md th,.md td{border:1px solid rgba(0,0,0,.1);padding:.4em .6em;text-align:left}
+    .line-clamp-4{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
   </style>
 </head>
 <body class="h-full font-sans">
 
-  <!-- ====================== AUTH SCREEN ====================== -->
+  <!-- AUTH -->
   <div id="auth-screen" class="min-h-full flex items-center justify-center p-6 fade-in">
     <div class="w-full max-w-sm">
       <div class="text-center mb-8">
         <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[18px] bg-white border border-black/5 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8">
-            <ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
         </div>
         <h1 class="text-[28px] font-semibold tracking-tight">Personal DB</h1>
         <p class="mt-1 text-sm text-gray-500">Личное пространство для заметок, финансов и медиа</p>
@@ -109,7 +87,7 @@
         <form id="login-form" class="space-y-3 p-3 pt-1" autocomplete="on">
           <div>
             <label class="label" for="login-username">Логин</label>
-            <input id="login-username" class="input" type="text" autocomplete="username" placeholder="asryanalex" required />
+            <input id="login-username" class="input" type="text" autocomplete="username" placeholder="Введите логин" required />
           </div>
           <div>
             <label class="label" for="login-password">Пароль</label>
@@ -136,77 +114,65 @@
           <button type="submit" class="btn btn-primary w-full">Создать аккаунт</button>
         </form>
       </div>
-
-      <p class="mt-6 text-center text-xs text-gray-400">Администратор создан автоматически</p>
+      <p class="mt-6 text-center text-xs text-gray-400">Данные синхронизируются между устройствами</p>
     </div>
   </div>
 
-  <!-- ====================== APP SHELL ====================== -->
+  <!-- APP -->
   <div id="app" class="hidden min-h-screen">
-    <!-- Sidebar overlay (mobile) -->
     <div id="sidebar-overlay" class="hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"></div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 flex flex-col border-r border-black/5 bg-white/80 backdrop-blur-xl transition-transform duration-300 -translate-x-full lg:translate-x-0">
       <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5">
         <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
         </div>
         <span class="font-semibold tracking-tight">Personal DB</span>
       </div>
 
-      <nav class="flex-1 p-3 space-y-1">
+      <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
         <button class="nav-item w-full active" data-view="dashboard">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-          Обзор
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>Обзор
         </button>
         <button class="nav-item w-full" data-view="notes">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-          Заметки
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>Заметки
         </button>
         <button class="nav-item w-full" data-view="finance">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M21 12a9 9 0 1 1-9-9v9z"/><path d="M21 12A9 9 0 0 0 12 3v9h9z"/></svg>
-          Финансы
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M21 12a9 9 0 1 1-9-9v9z"/><path d="M21 12A9 9 0 0 0 12 3v9h9z"/></svg>Финансы
         </button>
         <button class="nav-item w-full" data-view="media">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          Медиа
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Медиа
         </button>
       </nav>
 
       <div class="p-3 border-t border-black/5">
-        <div class="flex items-center gap-3 px-2 py-2 rounded-xl">
+        <div class="flex items-center gap-3 px-2 py-2">
           <div id="sidebar-avatar" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-white text-sm font-semibold">A</div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
               <span id="sidebar-name" class="truncate text-sm font-medium">Админ</span>
               <span id="sidebar-badge" class="chip bg-accent/10 text-accent !px-1.5 !py-0.5 !text-[10px]">ADMIN</span>
             </div>
-            <p id="sidebar-username" class="truncate text-xs text-gray-400">@asryanalex</p>
+            <p id="sidebar-username" class="truncate text-xs text-gray-400"></p>
           </div>
         </div>
         <button id="logout-btn" class="btn btn-ghost w-full mt-2">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Выйти
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Выйти
         </button>
       </div>
     </aside>
 
-    <!-- Main column -->
     <div class="lg:pl-64 flex flex-col min-h-screen">
-      <!-- Topbar -->
       <header class="glass sticky top-0 z-30 border-b border-black/5">
         <div class="flex items-center gap-3 px-4 sm:px-6 lg:px-8 h-16">
           <button id="menu-btn" class="btn btn-ghost !p-2 lg:hidden" aria-label="Меню">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
           <h2 id="page-title" class="text-lg font-semibold tracking-tight">Обзор</h2>
+          <div id="currency-bar" class="ml-auto hidden sm:flex items-center gap-3 text-xs text-gray-500"></div>
         </div>
       </header>
 
-      <!-- Views -->
       <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full max-w-6xl mx-auto">
         <section id="view-dashboard" class="space-y-6"></section>
         <section id="view-notes" class="hidden space-y-6"></section>
@@ -216,1255 +182,400 @@
     </div>
   </div>
 
-  <!-- ====================== MODAL ROOT ====================== -->
   <div id="modal-root" class="hidden fixed inset-0 z-50 items-center justify-center p-4"></div>
-
-  <!-- ====================== TOAST ROOT ====================== -->
   <div id="toast-root" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none"></div>
+
 <script>
-(function () {
+(function(){
 'use strict';
 
-/* =====================================================================
-   DOM & FORMAT UTILS
-===================================================================== */
-const $  = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2));
-const nowISO = () => new Date().toISOString();
+/* ============ КОНФИГУРАЦИЯ SUPABASE (вставьте свои значения) ============ */
+const SUPABASE_URL = "https://irzaljzhrocfphfimpdk.supabase.co/rest/v1/";       // например https://abcd.supabase.co
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlyemFsanpocm9jZnBoZmltcGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1Mzg1NjUsImV4cCI6MjA5ODExNDU2NX0.Pb62oHJamqPesy32rFw-2iPJMF_ZjdmnM70ebEKj0C0";          // anon public key
+const EMAIL_DOMAIN = "personal.db";             // не менять
+/* ===================================================================== */
 
-function escapeHtml(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
-    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-  ));
+if (SUPABASE_URL.includes('PASTE_')) {
+  alert('Откройте файл и вставьте SUPABASE_URL и SUPABASE_KEY в начале скрипта.');
 }
+const sb = (window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : { auth:{}, from:()=>{}, channel:()=>({on:()=>({subscribe(){}})}) };
 
-function fmtDate(iso) {
-  const d = new Date(iso), now = new Date();
-  if (d.toDateString() === now.toDateString())
-    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-  const opts = { day: 'numeric', month: 'short' };
-  if (d.getFullYear() !== now.getFullYear()) opts.year = 'numeric';
-  return d.toLocaleDateString('ru-RU', opts);
-}
-function fmtDateFull(iso) {
-  return new Date(iso).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-function fmtMoney(n) {
-  n = Number(n) || 0;
-  return '₽ ' + n.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
-}
-function fmtBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-  if (b < 1073741824) return (b / 1048576).toFixed(1) + ' MB';
-  return (b / 1073741824).toFixed(1) + ' GB';
-}
-function stripMd(md) {
-  return String(md || '')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/[#>*_`~\-|]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-function initials(name) {
-  const n = String(name || '?').trim();
-  return n ? n.charAt(0).toUpperCase() : '?';
-}
-
-/* =====================================================================
-   CRYPTO / PASSWORD  (Web Crypto — PBKDF2)
-===================================================================== */
-function bytesToHex(bytes) {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-function hexToBytes(hex) {
-  const arr = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(hex.substr(i * 2, 2), 16);
-  return arr;
-}
-async function hashPassword(password, saltHex) {
-  const salt = saltHex ? hexToBytes(saltHex) : crypto.getRandomValues(new Uint8Array(16));
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-    keyMaterial, 256
-  );
-  return { hash: bytesToHex(new Uint8Array(bits)), salt: bytesToHex(salt) };
-}
-async function verifyPassword(password, stored) {
-  if (!stored || !stored.hash || !stored.salt) return false;
-  const { hash } = await hashPassword(password, stored.salt);
-  return hash === stored.hash;
-}
-
-/* =====================================================================
-   INDEXEDDB LAYER
-===================================================================== */
-const DB = (() => {
-  let _db = null;
-  const DB_NAME = 'personalDB';
-  const DB_VERSION = 1;
-
-  function open() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, DB_VERSION);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains('users')) {
-          const s = db.createObjectStore('users', { keyPath: 'id' });
-          s.createIndex('username', 'username', { unique: true });
-        }
-        if (!db.objectStoreNames.contains('notes')) {
-          const s = db.createObjectStore('notes', { keyPath: 'id' });
-          s.createIndex('userId', 'userId');
-          s.createIndex('updatedAt', 'updatedAt');
-        }
-        if (!db.objectStoreNames.contains('expenses')) {
-          const s = db.createObjectStore('expenses', { keyPath: 'id' });
-          s.createIndex('userId', 'userId');
-          s.createIndex('date', 'date');
-        }
-        if (!db.objectStoreNames.contains('media')) {
-          const s = db.createObjectStore('media', { keyPath: 'id' });
-          s.createIndex('userId', 'userId');
-          s.createIndex('createdAt', 'createdAt');
-        }
-        if (!db.objectStoreNames.contains('categories')) {
-          const s = db.createObjectStore('categories', { keyPath: 'id' });
-          s.createIndex('userId', 'userId');
-        }
-      };
-      req.onsuccess = () => { _db = req.result; resolve(_db); };
-      req.onerror = () => reject(req.error);
-    });
-  }
-  async function ensure() { if (!_db) _db = await open(); return _db; }
-  function store(name, mode = 'readonly') { return _db.transaction(name, mode).objectStore(name); }
-  function asPromise(request) {
-    return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-  async function put(name, value) { await ensure(); return asPromise(store(name, 'readwrite').put(value)); }
-  async function get(name, key) { await ensure(); return asPromise(store(name).get(key)); }
-  async function del(name, key) { await ensure(); return asPromise(store(name, 'readwrite').delete(key)); }
-  async function all(name) { await ensure(); return asPromise(store(name).getAll()); }
-  async function byIndex(name, index, value) { await ensure(); return asPromise(store(name).index(index).getAll(value)); }
-  return { open, ensure, put, get, del, all, byIndex };
-})();
-
-/* =====================================================================
-   DATA ACCESS
-===================================================================== */
-const Users = {
-  findByUsername: (u) => DB.byIndex('users', 'username', u).then(a => a[0] || null),
-  get: (id) => DB.get('users', id),
-  create: (u) => DB.put('users', u),
-};
-
-const Notes = {
-  list: () => DB.byIndex('notes', 'userId', state.user.id)
-    .then(a => a.sort((x, y) => (y.pinned - x.pinned) || y.updatedAt.localeCompare(x.updatedAt))),
-  get: (id) => DB.get('notes', id),
-  save: (n) => DB.put('notes', n),
-  remove: (id) => DB.del('notes', id),
-};
-
-const Expenses = {
-  list: () => DB.byIndex('expenses', 'userId', state.user.id)
-    .then(a => a.sort((x, y) => y.date.localeCompare(x.date))),
-  save: (e) => DB.put('expenses', e),
-  remove: (id) => DB.del('expenses', id),
-};
-
-const Categories = {
-  list: () => DB.byIndex('categories', 'userId', state.user.id)
-    .then(a => a.sort((x, y) => x.name.localeCompare(y.name))),
-  save: (c) => DB.put('categories', c),
-  remove: (id) => DB.del('categories', id),
-};
-
-const Media = {
-  list: () => DB.byIndex('media', 'userId', state.user.id)
-    .then(a => a.sort((x, y) => y.createdAt.localeCompare(x.createdAt))),
-  get: (id) => DB.get('media', id),
-  save: (m) => DB.put('media', m),
-  remove: (id) => DB.del('media', id),
-};
-
-const DEFAULT_CATEGORIES = [
-  { name: 'Еда',          icon: '🍽️', color: '#FF9500' },
-  { name: 'Транспорт',    icon: '🚗', color: '#5856D6' },
-  { name: 'Покупки',      icon: '🛍️', color: '#FF2D55' },
-  { name: 'Развлечения',  icon: '🎬', color: '#34C759' },
-  { name: 'Здоровье',     icon: '💊', color: '#007AFF' },
-  { name: 'Жильё',        icon: '🏠', color: '#AF52DE' },
-  { name: 'Другое',       icon: '📦', color: '#8E8E93' },
-];
-async function seedCategories(userId) {
-  for (const c of DEFAULT_CATEGORIES) {
-    await DB.put('categories', { id: uuid(), userId, name: c.name, icon: c.icon, color: c.color });
-  }
-}
-
-/* =====================================================================
-   APP STATE
-===================================================================== */
+/* ===== УТИЛИТЫ ===== */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+const uuid = ()=>crypto.randomUUID();
+const nowISO = ()=>new Date().toISOString();
+const escapeHtml = s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtDate(iso){const d=new Date(iso),n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const o={day:'numeric',month:'short'};if(d.getFullYear()!==n.getFullYear())o.year='numeric';return d.toLocaleDateString('ru-RU',o);}
+function fmtDateFull(iso){return new Date(iso).toLocaleString('ru-RU',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function fmtMoney(n){n=Number(n)||0;return n.toLocaleString('ru-RU',{maximumFractionDigits:0})+' ₽';}
+function fmtBytes(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';if(b<1073741824)return(b/1048576).toFixed(1)+' MB';return(b/1073741824).toFixed(1)+' GB';}
+function stripMd(md){return String(md||'').replace(/!\[[^\]]*\]\([^)]*\)/g,'').replace(/\[([^\]]*)\]\([^)]*\)/g,'$1').replace(/```[\s\S]*?```/g,' ').replace(/[#>*_`~\-|]/g,' ').replace(/\s+/g,' ').trim();}
+function initials(n){const s=String(n||'?').trim();return s?s.charAt(0).toUpperCase():'?';}
+function ext(name){const m=String(name||'').match(/\.([a-z0-9]+)$/i);return m?m[1].toLowerCase():'';}
+const usernameToEmail = u=>u.trim().toLowerCase()+'@'+EMAIL_DOMAIN;
+/* ===== СОСТОЯНИЕ ===== */
 const state = {
-  user: null,
-  view: 'dashboard',
-  notesSearch: '',
-  financeChart: null,
-  mediaObjectUrls: [],   // для освобождения памяти
+  user: null, view: 'dashboard',
+  notesSearch: '', financeChart: null, dashChart: null,
+  currencies: {}, currentFolder: { notes:null, media:null, finance:null },
+  realtime: null,
 };
 
-/* =====================================================================
-   TOAST
-===================================================================== */
-function toast(message, type = 'default') {
-  const root = $('#toast-root');
-  const colors = {
-    default: 'bg-[#1d1d1f] text-white',
-    success: 'bg-[#34C759] text-white',
-    error:   'bg-[#FF3B30] text-white',
-  };
-  const el = document.createElement('div');
-  el.className = `pointer-events-auto max-w-sm rounded-2xl px-4 py-3 text-sm font-medium shadow-lg toast-in ${colors[type] || colors.default}`;
-  el.textContent = message;
-  root.appendChild(el);
-  setTimeout(() => {
-    el.style.transition = 'opacity .3s, transform .3s';
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(10px)';
-    setTimeout(() => el.remove(), 300);
-  }, 2600);
+/* ===== TOAST ===== */
+function toast(m,t='default'){const c={default:'bg-[#1d1d1f] text-white',success:'bg-[#34C759] text-white',error:'bg-[#FF3B30] text-white'}[t]||'bg-[#1d1d1f] text-white';const el=document.createElement('div');el.className=`pointer-events-auto max-w-sm rounded-2xl px-4 py-3 text-sm font-medium shadow-lg toast-in ${c}`;el.textContent=m;$('#toast-root').appendChild(el);setTimeout(()=>{el.style.transition='opacity .3s,transform .3s';el.style.opacity='0';el.style.transform='translateY(10px)';setTimeout(()=>el.remove(),300);},2600);}
+
+/* ===== МОДАЛКИ ===== */
+function openModal(html,size='md'){const r=$('#modal-root');const w=size==='lg'?'max-w-2xl':size==='sm'?'max-w-sm':'max-w-md';r.innerHTML=`<div class="absolute inset-0 bg-black/30 backdrop-blur-sm fade-in" data-close></div><div class="card relative w-full ${w} max-h-[90vh] overflow-hidden pop-in flex flex-col">${html}</div>`;r.classList.remove('hidden');r.classList.add('flex');const close=()=>{r.classList.add('hidden');r.classList.remove('flex');r.innerHTML='';};r.querySelectorAll('[data-close]').forEach(e=>e.addEventListener('click',close));document.addEventListener('keydown',function esc(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',esc);}});r._close=close;return r;}
+function closeModal(){const r=$('#modal-root');if(r&&r._close)r._close();}
+function confirmDialog({title='Подтвердите',message='',confirmText='Удалить',danger=true}){return new Promise(res=>{openModal(`<div class="p-6 text-center"><div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${danger?'bg-[#FF3B30]/10':'bg-accent/10'}">${danger?'<svg viewBox="0 0 24 24" fill="none" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'}</div><h3 class="text-base font-semibold">${escapeHtml(title)}</h3><p class="mt-1.5 text-sm text-gray-500">${escapeHtml(message)}</p></div><div class="grid grid-cols-2 gap-2 p-4 border-t border-black/5"><button class="btn btn-ghost" data-action="cancel">Отмена</button><button class="btn ${danger?'btn-danger':'btn-primary'}" data-action="confirm">${escapeHtml(confirmText)}</button></div>`,'sm');const r=$('#modal-root');r.querySelector('[data-action="cancel"]').addEventListener('click',()=>{closeModal();res(false);});r.querySelector('[data-action="confirm"]').addEventListener('click',()=>{closeModal();res(true);});});}
+
+/* ===== AUTH (Supabase) ===== */
+const ADMIN_USERNAME='asryanalex', ADMIN_PASSWORD='BAZA2005';
+async function ensureAdmin(){
+  try{
+    const { data } = await sb.from('profiles').select('id').eq('username',ADMIN_USERNAME).maybeSingle();
+    if (data) return;
+    const { data: authData, error } = await sb.auth.signUp({ email: usernameToEmail(ADMIN_USERNAME), password: ADMIN_PASSWORD });
+    if (error) { if (!String(error.message).includes('already')) console.warn('admin signup', error.message); }
+    if (authData && authData.user) {
+      await sb.from('profiles').insert({ id: authData.user.id, username: ADMIN_USERNAME, name:'Administrator', role:'admin' });
+      await seedCategories(authData.user.id);
+      await sb.auth.signOut();
+    }
+  }catch(e){console.warn('ensureAdmin',e);}
 }
-
-/* =====================================================================
-   MODAL
-===================================================================== */
-function openModal(contentHTML, size = 'md') {
-  const root = $('#modal-root');
-  const width = size === 'lg' ? 'max-w-2xl' : size === 'sm' ? 'max-w-sm' : 'max-w-md';
-  root.innerHTML =
-    `<div class="absolute inset-0 bg-black/30 backdrop-blur-sm fade-in" data-close></div>
-     <div class="card relative w-full ${width} max-h-[90vh] overflow-hidden pop-in flex flex-col">
-       ${contentHTML}
-     </div>`;
-  root.classList.remove('hidden');
-  root.classList.add('flex');
-  const close = () => {
-    root.classList.add('hidden');
-    root.classList.remove('flex');
-    root.innerHTML = '';
-  };
-  root.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', close));
-  document.addEventListener('keydown', function esc(e) {
-    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
-  });
-  root._close = close;
-  return root;
-}
-function closeModal() { const r = $('#modal-root'); if (r && r._close) r._close(); }
-
-function confirmDialog({ title = 'Подтвердите', message = '', confirmText = 'Удалить', danger = true }) {
-  return new Promise(resolve => {
-    openModal(`
-      <div class="p-6 text-center">
-        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${danger ? 'bg-[#FF3B30]/10' : 'bg-accent/10'}">
-          ${danger
-            ? '<svg viewBox="0 0 24 24" fill="none" stroke="#FF3B30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
-            : '<svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'}
-        </div>
-        <h3 class="text-base font-semibold">${escapeHtml(title)}</h3>
-        <p class="mt-1.5 text-sm text-gray-500">${escapeHtml(message)}</p>
-      </div>
-      <div class="grid grid-cols-2 gap-2 p-4 border-t border-black/5">
-        <button class="btn btn-ghost" data-action="cancel">Отмена</button>
-        <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-action="confirm">${escapeHtml(confirmText)}</button>
-      </div>
-    `, 'sm');
-    const root = $('#modal-root');
-    root.querySelector('[data-action="cancel"]').addEventListener('click', () => { closeModal(); resolve(false); });
-    root.querySelector('[data-action="confirm"]').addEventListener('click', () => { closeModal(); resolve(true); });
-  });
-}
-
-/* =====================================================================
-   AUTH
-===================================================================== */
-const SESSION_KEY = 'pd_session';
-
-async function ensureAdmin() {
-  const existing = await Users.findByUsername('asryanalex');
-  if (existing) return;
-  const { hash, salt } = await hashPassword('BAZA2005');
-  const admin = {
-    id: uuid(),
-    username: 'asryanalex',
-    name: 'Administrator',
-    role: 'ADMIN',
-    pwd: { hash, salt },
-    createdAt: nowISO(),
-  };
-  await Users.create(admin);
-  await seedCategories(admin.id);
-}
-
-async function doLogin(username, password) {
-  const user = await Users.findByUsername(username.trim().toLowerCase());
-  if (!user) return { ok: false, error: 'Пользователь не найден' };
-  const valid = await verifyPassword(password, user.pwd);
-  if (!valid) return { ok: false, error: 'Неверный пароль' };
-  await startSession(user);
-  return { ok: true };
-}
-
-async function doRegister(name, username, password) {
-  const uname = username.trim().toLowerCase();
-  if (uname.length < 3) return { ok: false, error: 'Логин минимум 3 символа' };
-  if (password.length < 4) return { ok: false, error: 'Пароль минимум 4 символа' };
-  if (await Users.findByUsername(uname)) return { ok: false, error: 'Логин уже занят' };
-  const { hash, salt } = await hashPassword(password);
-  const user = {
-    id: uuid(),
-    username: uname,
-    name: name.trim() || uname,
-    role: 'USER',
-    pwd: { hash, salt },
-    createdAt: nowISO(),
-  };
-  await Users.create(user);
-  await seedCategories(user.id);
-  await startSession(user);
-  return { ok: true };
-}
-
-async function startSession(user) {
-  state.user = { id: user.id, username: user.username, name: user.name, role: user.role };
-  localStorage.setItem(SESSION_KEY, user.id);
+async function doLogin(username, password){
+  const uname=username.trim().toLowerCase();
+  const { data, error } = await sb.auth.signInWithPassword({ email: usernameToEmail(uname), password });
+  if (error){ const m=String(error.message).toLowerCase(); if(m.includes('not confirmed'))return{ok:false,error:'Подтвердите email в настройках Supabase'}; if(m.includes('invalid'))return{ok:false,error:'Неверный логин или пароль'}; return{ok:false,error:error.message}; }
+  const profile = await sb.from('profiles').select('*').eq('id', data.user.id).maybeSingle();
+  if (!profile.data){ await sb.auth.signOut(); return { ok:false, error:'Профиль не найден' }; }
+  state.user = { id: data.user.id, username: profile.data.username, name: profile.data.name, role: profile.data.role };
+  await seedCategoriesIfEmpty(data.user.id);
   showApp();
+  return { ok:true };
 }
-
-async function restoreSession() {
-  const id = localStorage.getItem(SESSION_KEY);
-  if (!id) return false;
-  const user = await Users.get(id);
-  if (!user) { localStorage.removeItem(SESSION_KEY); return false; }
-  state.user = { id: user.id, username: user.username, name: user.name, role: user.role };
-  return true;
+async function doRegister(name, username, password){
+  const uname=username.trim().toLowerCase();
+  if (uname.length<3) return { ok:false, error:'Логин минимум 3 символа' };
+  if (password.length<4) return { ok:false, error:'Пароль минимум 4 символа' };
+  const { data:exist } = await sb.from('profiles').select('id').eq('username',uname).maybeSingle();
+  if (exist) return { ok:false, error:'Логин уже занят' };
+  const { data, error } = await sb.auth.signUp({ email: usernameToEmail(uname), password });
+  if (error) return { ok:false, error:error.message };
+  if (!data.user) return { ok:false, error:'Не удалось создать' };
+  await sb.from('profiles').insert({ id: data.user.id, username: uname, name: name.trim()||uname, role:'user' });
+  await seedCategories(data.user.id);
+  state.user = { id: data.user.id, username: uname, name: name.trim()||uname, role:'user' };
+  showApp();
+  return { ok:true };
 }
-
-function logout() {
-  // освобождаем object URLs
-  state.mediaObjectUrls.forEach(u => URL.revokeObjectURL(u));
-  state.mediaObjectUrls = [];
-  if (state.financeChart) { state.financeChart.destroy(); state.financeChart = null; }
-  state.user = null;
-  localStorage.removeItem(SESSION_KEY);
-  $('#app').classList.add('hidden');
-  $('#auth-screen').classList.remove('hidden');
-  $('#auth-screen').classList.add('fade-in');
-  $('#login-form').reset();
-  $('#register-form').reset();
+async function restoreSession(){
+  try{
+    const { data } = await sb.auth.getSession();
+    if (!data.session || !data.session.user) return false;
+    const p = await sb.from('profiles').select('*').eq('id', data.session.user.id).maybeSingle();
+    if (!p.data) return false;
+    state.user = { id: data.session.user.id, username: p.data.username, name: p.data.name, role: p.data.role };
+    await seedCategoriesIfEmpty(data.session.user.id);
+    return true;
+  }catch(e){ return false; }
 }
+function logout(){ try{ sb.auth.signOut(); }catch(e){} if(state.dashChart){state.dashChart.destroy();state.dashChart=null;} if(state.financeChart){state.financeChart.destroy();state.financeChart=null;} if(state.realtime){try{state.realtime.unsubscribe();}catch(e){} state.realtime=null;} state.user=null; $('#app').classList.add('hidden'); $('#auth-screen').classList.remove('hidden'); $('#login-form').reset(); $('#register-form').reset(); }
 
-function showApp() {
-  $('#auth-screen').classList.add('hidden');
-  $('#app').classList.remove('hidden');
-  updateProfileUI();
-  switchView('dashboard');
-}
+/* ===== КАТЕГОРИИ (seed) ===== */
+const DEFAULT_CATEGORIES=[{name:'Еда',icon:'🍽️',color:'#FF9500'},{name:'Транспорт',icon:'🚗',color:'#5856D6'},{name:'Покупки',icon:'🛍️',color:'#FF2D55'},{name:'Развлечения',icon:'🎬',color:'#34C759'},{name:'Здоровье',icon:'💊',color:'#007AFF'},{name:'Жильё',icon:'🏠',color:'#AF52DE'},{name:'Другое',icon:'📦',color:'#8E8E93'}];
+async function seedCategories(uid){ for(const c of DEFAULT_CATEGORIES){ await sb.from('categories').insert({ user_id:uid, name:c.name, icon:c.icon, color:c.color }); } }
+async function seedCategoriesIfEmpty(uid){ const { count } = await sb.from('categories').select('id',{count:'exact',head:true}).eq('user_id',uid); if(!count) await seedCategories(uid); }
 
-function updateProfileUI() {
-  const u = state.user;
-  $('#sidebar-name').textContent = u.name;
-  $('#sidebar-username').textContent = '@' + u.username;
-  $('#sidebar-avatar').textContent = initials(u.name);
-  const badge = $('#sidebar-badge');
-  if (u.role === 'ADMIN') badge.classList.remove('hidden'); else badge.classList.add('hidden');
-}
-
-function setupAuthScreen() {
-  const tabLogin = $('#tab-login'), tabReg = $('#tab-register');
-  const formLogin = $('#login-form'), formReg = $('#register-form');
-  const showLogin = () => {
-    tabLogin.classList.add('bg-white', 'shadow-sm', 'text-ink');
-    tabLogin.classList.remove('text-gray-500');
-    tabReg.classList.remove('bg-white', 'shadow-sm', 'text-ink');
-    tabReg.classList.add('text-gray-500');
-    formLogin.classList.remove('hidden'); formReg.classList.add('hidden');
-  };
-  const showReg = () => {
-    tabReg.classList.add('bg-white', 'shadow-sm', 'text-ink');
-    tabReg.classList.remove('text-gray-500');
-    tabLogin.classList.remove('bg-white', 'shadow-sm', 'text-ink');
-    tabLogin.classList.add('text-gray-500');
-    formReg.classList.remove('hidden'); formLogin.classList.add('hidden');
-  };
-  tabLogin.addEventListener('click', showLogin);
-  tabReg.addEventListener('click', showReg);
-
-  formLogin.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const err = $('#login-error');
-    err.classList.add('hidden');
-    const btn = formLogin.querySelector('button[type="submit"]');
-    btn.disabled = true; btn.textContent = 'Вход…';
-    const res = await doLogin($('#login-username').value, $('#login-password').value);
-    btn.disabled = false; btn.textContent = 'Войти';
-    if (!res.ok) { err.textContent = res.error; err.classList.remove('hidden'); return; }
-    toast('С возвращением!', 'success');
-  });
-
-  formReg.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const err = $('#register-error');
-    err.classList.add('hidden');
-    const btn = formReg.querySelector('button[type="submit"]');
-    btn.disabled = true; btn.textContent = 'Создание…';
-    const res = await doRegister($('#reg-name').value, $('#reg-username').value, $('#reg-password').value);
-    btn.disabled = false; btn.textContent = 'Создать аккаунт';
-    if (!res.ok) { err.textContent = res.error; err.classList.remove('hidden'); return; }
-    toast('Аккаунт создан', 'success');
-  });
-
-  $('#logout-btn').addEventListener('click', () => logout());
-}
-
-/* =====================================================================
-   ROUTER
-===================================================================== */
-const VIEWS = {
-  dashboard: { title: 'Обзор',   render: renderDashboard },
-  notes:     { title: 'Заметки',  render: renderNotes },
-  finance:   { title: 'Финансы',  render: renderFinance },
-  media:     { title: 'Медиа',    render: renderMedia },
+/* ===== DATA ACCESS ===== */
+const Notes = {
+  async list(folderId){ let q=sb.from('notes').select('*').eq('user_id',state.user.id).order('pinned',{ascending:false}).order('updated_at',{ascending:false}); if(folderId==='root')q=q.is('folder_id',null); else if(folderId)q=q.eq('folder_id',folderId); const { data, error }=await q; if(error)console.warn(error); return data||[]; },
+  async get(id){ const { data }=await sb.from('notes').select('*').eq('id',id).maybeSingle(); return data; },
+  save(rec){ return sb.from('notes').upsert(rec); },
+  remove(id){ return sb.from('notes').delete().eq('id',id); },
+};
+const Expenses = {
+  async list(folderId){ let q=sb.from('expenses').select('*').eq('user_id',state.user.id).order('date',{ascending:false}); if(folderId==='root')q=q.is('folder_id',null); else if(folderId)q=q.eq('folder_id',folderId); const { data }=await q; return data||[]; },
+  save(rec){ return sb.from('expenses').upsert(rec); },
+  remove(id){ return sb.from('expenses').delete().eq('id',id); },
+};
+const Categories = {
+  async list(){ const { data }=await sb.from('categories').select('*').eq('user_id',state.user.id).order('name'); return data||[]; },
+  save(rec){ return sb.from('categories').upsert(rec); },
+  remove(id){ return sb.from('categories').delete().eq('id',id); },
+};
+const Media = {
+  async list(folderId){ let q=sb.from('media').select('*').eq('user_id',state.user.id).order('created_at',{ascending:false}); if(folderId==='root')q=q.is('folder_id',null); else if(folderId)q=q.eq('folder_id',folderId); const { data }=await q; return data||[]; },
+  async get(id){ const { data }=await sb.from('media').select('*').eq('id',id).maybeSingle(); return data; },
+  remove(id){ return sb.from('media').delete().eq('id',id); },
+  async upload(file, rec){ const path=`${state.user.id}/${rec.id}/${rec.filename}`; const { error }=await sb.storage.from('media').upload(path, file, { upsert:true, contentType:file.type||'application/octet-stream' }); if(error){ if(String(error.message).includes('already')){ await sb.storage.from('media').remove([path]); await sb.storage.from('media').upload(path,file,{upsert:true,contentType:file.type||'application/octet-stream'}); } else { throw error; } } rec.storage_path=path; await sb.from('media').insert(rec); return path; },
+  url(path){ try{ return sb.storage.from('media').getPublicUrl(path).data.publicUrl; }catch(e){ return ''; } },
+};
+const Folders = {
+  async list(kind){ const { data }=await sb.from('folders').select('*').eq('user_id',state.user.id).eq('kind',kind).order('name'); return data||[]; },
+  save(rec){ return sb.from('folders').upsert(rec); },
+  remove(id){ return sb.from('folders').delete().eq('id',id); },
 };
 
-function switchView(view) {
-  if (!VIEWS[view]) view = 'dashboard';
-  state.view = view;
-  $$('#view-dashboard, #view-notes, #view-finance, #view-media').forEach(s => s.classList.add('hidden'));
-  const target = $('#view-' + view);
-  target.classList.remove('hidden');
-  $('#page-title').textContent = VIEWS[view].title;
-  $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
-  closeMobileSidebar();
-  VIEWS[view].render();
-}
-
-function closeMobileSidebar() {
-  $('#sidebar').classList.add('-translate-x-full');
-  $('#sidebar').classList.remove('translate-x-0');
-  $('#sidebar-overlay').classList.add('hidden');
-}
-function openMobileSidebar() {
-  $('#sidebar').classList.remove('-translate-x-full');
-  $('#sidebar').classList.add('translate-x-0');
-  $('#sidebar-overlay').classList.remove('hidden');
-}
-
-/* =====================================================================
-   DASHBOARD
-===================================================================== */
-function statCard({ label, value, sub, subAccent }) {
-  return `<div class="card p-5">
-    <p class="text-xs font-medium text-gray-500">${label}</p>
-    <p class="mt-2 text-2xl font-semibold tracking-tight">${value}</p>
-    ${sub ? `<p class="mt-1 text-xs ${subAccent ? 'text-accent' : 'text-gray-400'}">${sub}</p>` : ''}
-  </div>`;
-}
-
-async function renderDashboard() {
-  const view = $('#view-dashboard');
-  view.innerHTML = `<div class="flex items-center justify-center py-20 text-sm text-gray-400">Загрузка…</div>`;
-
-  const [notes, media, expenses, categories] = await Promise.all([
-    Notes.list(), Media.list(), Expenses.list(), Categories.list()
-  ]);
-  const catMap = {};
-  categories.forEach(c => catMap[c.name] = c);
-
-  const now = new Date();
-  const monthExpenses = expenses.filter(e => {
-    const d = new Date(e.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
-  const monthTotal = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
-  const totalSpent = expenses.reduce((s, e) => s + Number(e.amount), 0);
-
-  // группировка по категориям (за месяц)
-  const byCat = {};
-  monthExpenses.forEach(e => {
-    const k = e.category || 'Другое';
-    byCat[k] = (byCat[k] || 0) + Number(e.amount);
-  });
-
-  const recentNotes = notes.slice(0, 4);
-  const recentMedia = media.filter(m => m.type && m.type.startsWith('image/')).slice(0, 6);
-
-  const isAdmin = state.user.role === 'ADMIN';
-  const hour = now.getHours();
-  const greet = hour < 6 ? 'Доброй ночи' : hour < 12 ? 'Доброе утро' : hour < 18 ? 'Добрый день' : 'Добрый вечер';
-
-  view.innerHTML = `
-    <div class="slide-up">
-      <div class="flex flex-wrap items-center gap-2 mb-1">
-        <h1 class="text-2xl font-semibold tracking-tight">${greet}, ${escapeHtml(state.user.name)}</h1>
-        ${isAdmin ? '<span class="chip bg-accent/10 text-accent">ADMIN</span>' : ''}
-      </div>
-      <p class="text-sm text-gray-500">${now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-    </div>
-
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 slide-up" style="animation-delay:.03s">
-      ${statCard({ label: 'Расходы за месяц', value: fmtMoney(monthTotal) })}
-      ${statCard({ label: 'Всего расходов', value: fmtMoney(totalSpent) })}
-      ${statCard({ label: 'Заметки', value: notes.length })}
-      ${statCard({ label: 'Файлы', value: media.length })}
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <!-- Chart -->
-      <div class="card p-5 lg:col-span-2 slide-up" style="animation-delay:.06s">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-medium text-gray-500">Расходы по категориям</h2>
-          <span class="text-xs text-gray-400">${now.toLocaleDateString('ru-RU', { month: 'long' })}</span>
-        </div>
-        ${Object.keys(byCat).length
-          ? `<div class="relative h-64"><canvas id="dash-chart"></canvas></div>
-             <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
-               ${Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
-                 <div class="flex items-center gap-2 text-sm">
-                   <span class="h-2.5 w-2.5 rounded-full" style="background:${(catMap[k] && catMap[k].color) || '#8E8E93'}"></span>
-                   <span class="text-gray-600 truncate">${escapeHtml(k)}</span>
-                   <span class="ml-auto font-medium">${fmtMoney(v)}</span>
-                 </div>`).join('')}
-             </div>`
-          : `<div class="h-64 flex flex-col items-center justify-center text-center text-gray-400">
-               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 mb-2 opacity-50"><path d="M21 12a9 9 0 1 1-9-9v9z"/></svg>
-               <p class="text-sm">Нет расходов в этом месяце</p>
-             </div>`}
-      </div>
-
-      <!-- Recent notes -->
-      <div class="card p-5 slide-up" style="animation-delay:.09s">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-medium text-gray-500">Последние заметки</h2>
-          <button class="text-xs font-medium text-accent" data-goto="notes">Все</button>
-        </div>
-        ${recentNotes.length
-          ? `<ul class="space-y-1">${recentNotes.map(n => `
-              <li class="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-black/[0.03] cursor-pointer" data-note="${n.id}">
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-1.5">
-                    ${n.pinned ? '<svg viewBox="0 0 24 24" fill="#FF9500" class="w-3.5 h-3.5 shrink-0"><path d="M16 3l5 5-3 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg>' : ''}
-                  <span class="truncate text-sm font-medium">${escapeHtml(n.title)}</span>
-                  </div>
-                  <p class="truncate text-xs text-gray-400">${escapeHtml(stripMd(n.content).slice(0, 60)) || 'Без содержимого'}</p>
-                </div>
-                <span class="text-xs text-gray-400 shrink-0">${fmtDate(n.updatedAt)}</span>
-              </li>`).join('')}</ul>`
-          : `<div class="py-8 text-center text-sm text-gray-400">Заметок пока нет</div>`}
-      </div>
-    </div>
-
-    <!-- Media preview -->
-    <div class="slide-up" style="animation-delay:.12s">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-medium text-gray-500">Недавние изображения</h2>
-        <button class="text-xs font-medium text-accent" data-goto="media">Галерея</button>
-      </div>
-      ${recentMedia.length
-        ? `<div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            ${recentMedia.map(m => `
-              <div class="aspect-square overflow-hidden rounded-2xl border border-black/5 bg-black/5 cursor-pointer" data-media="${m.id}">
-                <img alt="" class="h-full w-full object-cover" />
-              </div>`).join('')}
-          </div>`
-        : `<div class="card p-8 text-center text-sm text-gray-400">Изображений пока нет</div>`}
-    </div>
-  `;
-
-  // загружаем thumbnails
-  recentMedia.forEach(async m => {
-    const full = await Media.get(m.id);
-    if (full && full.blob) {
-      const url = URL.createObjectURL(full.blob);
-      state.mediaObjectUrls.push(url);
-      const img = view.querySelector(`[data-media="${m.id}"] img`);
-      if (img) img.src = url;
+/* ===== КУРСЫ ВАЛЮТ ЦБ РФ ===== */
+async function loadCurrencies(){
+  try{
+    const today=new Date(); let rates=null;
+    for(let i=0;i<5;i++){
+      const d=new Date(today); d.setDate(d.getDate()-i);
+      const dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'), yyyy=d.getFullYear();
+      const url=`https://www.cbr-xml-daily.ru/archive/${yyyy}/${mm}/${dd}/daily_json.js`;
+      try{ const r=await fetch(url); if(r.ok){ rates=await r.json(); break; } }catch(e){}
     }
-  });
+    if(!rates){ const r=await fetch('https://www.cbr-xml-daily.ru/daily_json.js'); rates=await r.json(); }
+    const v=rates.Valute;
+    state.currencies = {
+      date: rates.Date,
+      USD: { rate:v.USD.Value, prev:v.USD.Previous, nominal:v.USD.Nominal },
+      EUR: { rate:v.EUR.Value, prev:v.EUR.Previous, nominal:v.EUR.Nominal },
+      CNY: { rate:v.CNY.Value, prev:v.CNY.Previous, nominal:v.CNY.Nominal },
+    };
+    renderCurrencyBar();
+  }catch(e){ console.warn('currency',e); }
+}
+function renderCurrencyBar(){
+  const bar=$('#currency-bar'); if(!bar)return;
+  const c=state.currencies; if(!c.USD){ bar.innerHTML=''; return; }
+  const chip=(code,d)=>{ const diff=d.rate-d.prev; const up=diff>=0; const arrow=up?'▲':'▼'; const col=up?'text-[#34C759]':'text-[#FF3B30]'; return `<div class="flex items-center gap-1.5"><span class="font-semibold text-ink">${code}</span><span>${d.rate.toFixed(2)}₽</span><span class="${col} text-[10px]">${arrow} ${Math.abs(diff).toFixed(2)}</span></div>`; };
+  bar.innerHTML = `<div class="hidden md:flex items-center gap-3">${chip('USD',c.USD)}${chip('EUR',c.EUR)}${chip('CNY',c.CNY)}</div>`;
+}
 
-  // chart
-  if (Object.keys(byCat).length) {
-    const ctx = $('#dash-chart');
-    if (ctx) {
-      const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-      new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: entries.map(e => e[0]),
-          datasets: [{
-            data: entries.map(e => e[1]),
-            backgroundColor: entries.map(e => (catMap[e[0]] && catMap[e[0]].color) || '#8E8E93'),
-            borderWidth: 2,
-            borderColor: '#ffffff',
-            hoverOffset: 6,
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false, cutout: '62%',
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1d1d1f', padding: 12, cornerRadius: 12,
-              titleFont: { size: 13 }, bodyFont: { size: 13 },
-              callbacks: { label: (c) => ' ' + fmtMoney(c.parsed) }
-            }
-          }
-        }
-      });
-    }
-  }
+/* ===== REALTIME ===== */
+function setupRealtime(){
+  if(state.realtime) return;
+  try{
+    state.realtime = sb.channel('db-changes')
+      .on('postgres_changes',{ event:'*', schema:'public', table:'notes', filter:`user_id=eq.${state.user.id}` }, payload=>{ if(state.view==='notes'||state.view==='dashboard') VIEWS[state.view].render(); })
+      .on('postgres_changes',{ event:'*', schema:'public', table:'expenses', filter:`user_id=eq.${state.user.id}` }, ()=>{ if(state.view==='finance'||state.view==='dashboard') VIEWS[state.view].render(); })
+      .on('postgres_changes',{ event:'*', schema:'public', table:'media', filter:`user_id=eq.${state.user.id}` }, ()=>{ if(state.view==='media'||state.view==='dashboard') VIEWS[state.view].render(); })
+      .on('postgres_changes',{ event:'*', schema:'public', table:'folders', filter:`user_id=eq.${state.user.id}` }, ()=>{ VIEWS[state.view].render(); })
+      .on('postgres_changes',{ event:'*', schema:'public', table:'categories', filter:`user_id=eq.${state.user.id}` }, ()=>{ if(state.view==='finance') VIEWS.finance.render(); })
+      .subscribe();
+  }catch(e){ console.warn('realtime',e); }
+}
 
-  // wired events
-  view.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.goto)));
-  view.querySelectorAll('[data-note]').forEach(li => li.addEventListener('click', () => { switchView('notes'); setTimeout(() => openNoteEditor(li.dataset.note), 50); }));
-  view.querySelectorAll('[data-media]').forEach(d => d.addEventListener('click', async () => {
-    const full = await Media.get(d.dataset.media);
-    if (full) openMediaPreview(full);
+/* ===== АВТ-ЭКРАН ===== */
+function showApp(){ $('#auth-screen').classList.add('hidden'); $('#app').classList.remove('hidden'); const u=state.user; $('#sidebar-name').textContent=u.name; $('#sidebar-username').textContent=u.role==='admin'?'Администратор':''; $('#sidebar-avatar').textContent=initials(u.name); const b=$('#sidebar-badge'); if(u.role==='admin')b.classList.remove('hidden'); else b.classList.add('hidden'); loadCurrencies(); setupRealtime(); switchView('dashboard'); }
+function setupAuthScreen(){
+  const tL=$('#tab-login'),tR=$('#tab-register'),fL=$('#login-form'),fR=$('#register-form');
+  const sL=()=>{tL.classList.add('bg-white','shadow-sm','text-ink');tL.classList.remove('text-gray-500');tR.classList.remove('bg-white','shadow-sm','text-ink');tR.classList.add('text-gray-500');fL.classList.remove('hidden');fR.classList.add('hidden');};
+  const sR=()=>{tR.classList.add('bg-white','shadow-sm','text-ink');tR.classList.remove('text-gray-500');tL.classList.remove('bg-white','shadow-sm','text-ink');tL.classList.add('text-gray-500');fR.classList.remove('hidden');fL.classList.add('hidden');};
+  tL.addEventListener('click',sL); tR.addEventListener('click',sR);
+  fL.addEventListener('submit',async(e)=>{e.preventDefault();const er=$('#login-error');er.classList.add('hidden');const btn=fL.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Вход…';const r=await doLogin($('#login-username').value,$('#login-password').value);btn.disabled=false;btn.textContent='Войти';if(!r.ok){er.textContent=r.error;er.classList.remove('hidden');return;}toast('С возвращением!','success');});
+  fR.addEventListener('submit',async(e)=>{e.preventDefault();const er=$('#register-error');er.classList.add('hidden');const btn=fR.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Создание…';const r=await doRegister($('#reg-name').value,$('#reg-username').value,$('#reg-password').value);btn.disabled=false;btn.textContent='Создать аккаунт';if(!r.ok){er.textContent=r.error;er.classList.remove('hidden');return;}toast('Аккаунт создан','success');});
+  $('#logout-btn').addEventListener('click',()=>logout());
+}
+
+/* ===== РОУТЕР ===== */
+const VIEWS={dashboard:{title:'Обзор',render:renderDashboard},notes:{title:'Заметки',render:renderNotes},finance:{title:'Финансы',render:renderFinance},media:{title:'Медиа',render:renderMedia}};
+function switchView(v){if(!VIEWS[v])v='dashboard';state.view=v;$('#view-dashboard,#view-notes,#view-finance,#view-media').split(',').forEach(s=>$(s).classList.add('hidden'));$('#view-'+v).classList.remove('hidden');$('#page-title').textContent=VIEWS[v].title;$$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));closeMobileSidebar();VIEWS[v].render();}
+function closeMobileSidebar(){$('#sidebar').classList.add('-translate-x-full');$('#sidebar').classList.remove('translate-x-0');$('#sidebar-overlay').classList.add('hidden');}
+function openMobileSidebar(){$('#sidebar').classList.remove('-translate-x-full');$('#sidebar').classList.add('translate-x-0');$('#sidebar-overlay').classList.remove('hidden');}
+
+/* ===== ПАПКИ (общий рендер ленты) ===== */
+function folderRowHTML(folders, currentFolderId, kind){
+  const all = `<button class="folder-chip ${currentFolderId===null?'bg-accent/10 text-accent border-accent/20':'bg-white text-gray-600 border-black/10 hover:bg-black/[0.03]'}" data-folder="root"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4"><path d="M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-7l-2-2H4a1 1 0 0 0-1 1z"/></svg>Все</button>`;
+  const items = folders.map(f=>`<button class="folder-chip ${currentFolderId===f.id?'bg-accent/10 text-accent border-accent/20':'bg-white text-gray-600 border-black/10 hover:bg-black/[0.03]'}" data-folder="${f.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4"><path d="M3 7v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-7l-2-2H4a1 1 0 0 0-1 1z"/></svg>${escapeHtml(f.name)}</button>`).join('');
+  return `<div class="flex flex-wrap items-center gap-2">${all}${items}<button class="folder-chip bg-white text-gray-400 border-dashed border-black/15 hover:bg-black/[0.03]" data-folder="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4"><path d="M12 5v14M5 12h14"/></svg>Папка</button></div>`;
+}
+function wireFolders(container, kind, onPick){
+  container.querySelectorAll('[data-folder]').forEach(b=>b.addEventListener('click',async()=>{
+    if(b.dataset.folder==='new'){ const name=prompt('Название папки:'); if(!name)return; const { data }=await Folders.save({ id:uuid(), user_id:state.user.id, name:name.trim(), kind }); toast('Папка создана','success'); onPick(data?data.id:null); return; }
+    onPick(b.dataset.folder==='root'?null:b.dataset.folder);
   }));
 }
 
-/* =====================================================================
-   NOTES
-===================================================================== */
-async function renderNotes() {
-  const view = $('#view-notes');
-  const all = await Notes.list();
-  const q = state.notesSearch.trim().toLowerCase();
-  const filtered = q
-    ? all.filter(n => n.title.toLowerCase().includes(q) || stripMd(n.content).toLowerCase().includes(q)
-        || (n.tags || []).some(t => t.toLowerCase().includes(q)))
-    : all;
-
-  view.innerHTML = `
-    <div class="flex flex-wrap items-center gap-3">
-      <div class="relative flex-1 min-w-[200px]">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="notes-search" class="input pl-10" placeholder="Поиск заметок…" value="${escapeHtml(state.notesSearch)}" />
-      </div>
-      <button id="new-note" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-        Новая
-      </button>
+/* ===== DASHBOARD ===== */
+function statCardHTML({label,value,sub}){return `<div class="card p-5"><p class="text-xs font-medium text-gray-500">${label}</p><p class="mt-2 text-2xl font-semibold tracking-tight">${value}</p>${sub?`<p class="mt-1 text-xs text-gray-400">${sub}</p>`:''}</div>`;}
+async function renderDashboard(){
+  const view=$('#view-dashboard'); view.innerHTML=`<div class="flex items-center justify-center py-20 text-sm text-gray-400">Загрузка…</div>`;
+  const [notes,media,expenses,categories]=await Promise.all([Notes.list(),Media.list(),Expenses.list(),Categories.list()]);
+  const catMap={}; categories.forEach(c=>catMap[c.name]=c);
+  const now=new Date();
+  const monthExp=expenses.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const monthTotal=monthExp.reduce((s,e)=>s+Number(e.amount),0);
+  const totalSpent=expenses.reduce((s,e)=>s+Number(e.amount),0);
+  const byCat={}; monthExp.forEach(e=>{const k=e.category||'Другое';byCat[k]=(byCat[k]||0)+Number(e.amount);});
+  const recentNotes=notes.slice(0,4);
+  const recentMedia=media.filter(m=>m.type&&m.type.startsWith('image/')).slice(0,6);
+  const isAdmin=state.user.role==='admin';
+  const hour=now.getHours(); const greet=hour<6?'Доброй ночи':hour<12?'Доброе утро':hour<18?'Добрый день':'Добрый вечер';
+  if(state.dashChart){state.dashChart.destroy();state.dashChart=null;}
+  view.innerHTML=`
+    <div class="slide-up"><div class="flex flex-wrap items-center gap-2 mb-1"><h1 class="text-2xl font-semibold tracking-tight">${greet}, ${escapeHtml(state.user.name)}</h1>${isAdmin?'<span class="chip bg-accent/10 text-accent">ADMIN</span>':''}</div><p class="text-sm text-gray-500">${now.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</p></div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 slide-up" style="animation-delay:.03s">${statCardHTML({label:'Расходы за месяц',value:fmtMoney(monthTotal)})}${statCardHTML({label:'Всего расходов',value:fmtMoney(totalSpent)})}${statCardHTML({label:'Заметки',value:String(notes.length)})}${statCardHTML({label:'Файлы',value:String(media.length)})}</div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="card p-5 lg:col-span-2 slide-up" style="animation-delay:.06s"><div class="flex items-center justify-between mb-4"><h2 class="text-sm font-medium text-gray-500">Расходы по категориям</h2><span class="text-xs text-gray-400">${now.toLocaleDateString('ru-RU',{month:'long'})}</span></div>${Object.keys(byCat).length?`<div class="relative h-64"><canvas id="dash-chart"></canvas></div><div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="flex items-center gap-2 text-sm"><span class="h-2.5 w-2.5 rounded-full" style="background:${(catMap[k]&&catMap[k].color)||'#8E8E93'}"></span><span class="text-gray-600 truncate">${escapeHtml(k)}</span><span class="ml-auto font-medium">${fmtMoney(v)}</span></div>`).join('')}</div>`:`<div class="h-64 flex flex-col items-center justify-center text-center text-gray-400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 mb-2 opacity-50"><path d="M21 12a9 9 0 1 1-9-9v9z"/></svg><p class="text-sm">Нет расходов в этом месяце</p></div>`}</div>
+      <div class="card p-5 slide-up" style="animation-delay:.09s"><div class="flex items-center justify-between mb-4"><h2 class="text-sm font-medium text-gray-500">Последние заметки</h2><button class="text-xs font-medium text-accent" data-goto="notes">Все</button></div>${recentNotes.length?`<ul class="space-y-1">${recentNotes.map(n=>`<li class="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-black/[0.03] cursor-pointer" data-note="${n.id}"><div class="min-w-0 flex-1"><div class="flex items-center gap-1.5">${n.pinned?'<svg viewBox="0 0 24 24" fill="#FF9500" class="w-3.5 h-3.5 shrink-0"><path d="M16 3l5 5-3 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg>':''}<span class="truncate text-sm font-medium">${escapeHtml(n.title||'Без заголовка')}</span></div><p class="truncate text-xs text-gray-400">${escapeHtml(stripMd(n.content).slice(0,60))||'Без содержимого'}</p></div><span class="text-xs text-gray-400 shrink-0">${fmtDate(n.updated_at)}</span></li>`).join('')}</ul>`:`<div class="py-8 text-center text-sm text-gray-400">Заметок пока нет</div>`}</div>
     </div>
+    <div class="slide-up" style="animation-delay:.12s"><div class="flex items-center justify-between mb-3"><h2 class="text-sm font-medium text-gray-500">Недавние изображения</h2><button class="text-xs font-medium text-accent" data-goto="media">Галерея</button></div>${recentMedia.length?`<div class="grid grid-cols-3 sm:grid-cols-6 gap-3">${recentMedia.map(m=>`<div class="aspect-square overflow-hidden rounded-2xl border border-black/5 bg-black/5 cursor-pointer" data-media="${m.id}"><img alt="" class="h-full w-full object-cover" src="${Media.url(m.storage_path)}" /></div>`).join('')}</div>`:`<div class="card p-8 text-center text-sm text-gray-400">Изображений пока нет</div>`}</div>
+  `;
+  if(Object.keys(byCat).length){const ctx=$('#dash-chart');if(ctx){const entries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);state.dashChart=new Chart(ctx,{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:entries.map(e=>(catMap[e[0]]&&catMap[e[0]].color)||'#8E8E93'),borderWidth:2,borderColor:'#ffffff',hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1d1d1f',padding:12,cornerRadius:12,callbacks:{label:c=>' '+fmtMoney(c.parsed)}}}}});}}
+  view.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.goto)));
+  view.querySelectorAll('[data-note]').forEach(li=>li.addEventListener('click',()=>{switchView('notes');setTimeout(()=>openNoteEditor(li.dataset.note),80);}));
+  view.querySelectorAll('[data-media]').forEach(d=>d.addEventListener('click',async()=>{const full=await Media.get(d.dataset.media);if(full)openMediaPreview(full);}));
+}
 
+/* ===== ЗАМЕТКИ ===== */
+async function renderNotes(){
+  const view=$('#view-notes');
+  const fid=state.currentFolder.notes;
+  const [all,folders]=await Promise.all([Notes.list(fid),Folders.list('notes')]);
+  const q=state.notesSearch.trim().toLowerCase();
+  const filtered=q?all.filter(n=>(n.title||'').toLowerCase().includes(q)||stripMd(n.content).toLowerCase().includes(q)||(n.tags||[]).some(t=>t.toLowerCase().includes(q))):all;
+  view.innerHTML=`
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[200px]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="notes-search" class="input pl-10" placeholder="Поиск заметок…" value="${escapeHtml(state.notesSearch)}" /></div>
+      <button id="new-note" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M12 5v14M5 12h14"/></svg>Новая</button>
+    </div>
+    <div id="notes-folder-row">${folderRowHTML(folders,fid,'notes')}</div>
     <div id="notes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   `;
-
-  $('#notes-search').addEventListener('input', (e) => {
-    state.notesSearch = e.target.value;
-    renderNotesCards(all);
-  });
-  $('#new-note').addEventListener('click', () => openNoteEditor(null));
+  $('#notes-search').addEventListener('input',e=>{state.notesSearch=e.target.value;renderNotesCards(all);});
+  $('#new-note').addEventListener('click',()=>openNoteEditor(null));
+  wireFolders($('#notes-folder-row'),'notes',()=>renderNotes());
   renderNotesCards(all);
-
-  if (!all.length) {
-    $('#notes-grid').innerHTML = emptyState('Заметок пока нет', 'Создайте первую заметку с поддержкой Markdown', 'Создать заметку', () => openNoteEditor(null));
-  }
+  if(!all.length&&!fid){$('#notes-grid').innerHTML=emptyState('Заметок пока нет','Создайте первую заметку с поддержкой Markdown','Создать заметку',()=>openNoteEditor(null));}
 }
-
-function renderNotesCards(all) {
-  const grid = $('#notes-grid');
-  if (!grid) return;
-  const q = state.notesSearch.trim().toLowerCase();
-  const filtered = q
-    ? all.filter(n => n.title.toLowerCase().includes(q) || stripMd(n.content).toLowerCase().includes(q)
-        || (n.tags || []).some(t => t.toLowerCase().includes(q)))
-    : all;
-
-  if (!filtered.length) {
-    grid.innerHTML = `<div class="col-span-full card p-10 text-center text-sm text-gray-400">Ничего не найдено</div>`;
-    return;
-  }
-  grid.innerHTML = filtered.map(n => `
-    <article class="card p-4 flex flex-col slide-up cursor-pointer group hover:shadow-md transition-shadow" data-note="${n.id}">
-      <div class="flex items-start gap-2">
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1.5">
-            ${n.pinned ? '<svg viewBox="0 0 24 24" fill="#FF9500" class="w-3.5 h-3.5 shrink-0"><path d="M16 3l5 5-3 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg>' : ''}
-            <h3 class="truncate font-semibold tracking-tight">${escapeHtml(n.title)}</h3>
-          </div>
-        </div>
-      </div>
-      <p class="mt-2 text-sm text-gray-500 line-clamp-4 flex-1">${escapeHtml(stripMd(n.content).slice(0, 200)) || '<span class="text-gray-300">Без содержимого</span>'}</p>
-      ${(n.tags && n.tags.length) ? `<div class="mt-3 flex flex-wrap gap-1.5">${n.tags.slice(0, 4).map(t => `<span class="chip bg-black/[0.05] text-gray-600">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-      <div class="mt-3 flex items-center justify-between">
-        <span class="text-xs text-gray-400">${fmtDate(n.updatedAt)}</span>
-        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-          <button class="btn btn-ghost !p-1.5" data-action="pin" data-id="${n.id}" title="Закрепить">
-            <svg viewBox="0 0 24 24" fill="${n.pinned ? '#FF9500' : 'none'}" stroke="${n.pinned ? '#FF9500' : 'currentColor'}" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
-          </button>
-          <button class="btn btn-ghost !p-1.5" data-action="edit" data-id="${n.id}" title="Изменить">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-          </button>
-          <button class="btn btn-ghost !p-1.5 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-action="del" data-id="${n.id}" title="Удалить">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-        </div>
-      </div>
-    </article>
-  `).join('');
-
-  grid.querySelectorAll('[data-note]').forEach(card => {
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('[data-action]')) return;
-      openNoteEditor(card.dataset.note);
-    });
-  });
-  grid.querySelectorAll('[data-action="edit"]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); openNoteEditor(b.dataset.id); }));
-  grid.querySelectorAll('[data-action="pin"]').forEach(b => b.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const n = await Notes.get(b.dataset.id);
-    n.pinned = !n.pinned; n.updatedAt = nowISO();
-    await Notes.save(n); renderNotes();
-  }));
-  grid.querySelectorAll('[data-action="del"]').forEach(b => b.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const ok = await confirmDialog({ title: 'Удалить заметку?', message: 'Это действие нельзя отменить.' });
-    if (!ok) return;
-    await Notes.remove(b.dataset.id); toast('Заметка удалена', 'success'); renderNotes();
-  }));
+function renderNotesCards(all){
+  const grid=$('#notes-grid');if(!grid)return;
+  const q=state.notesSearch.trim().toLowerCase();
+  const filtered=q?all.filter(n=>(n.title||'').toLowerCase().includes(q)||stripMd(n.content).toLowerCase().includes(q)||(n.tags||[]).some(t=>t.toLowerCase().includes(q))):all;
+  if(!filtered.length){grid.innerHTML=`<div class="col-span-full card p-10 text-center text-sm text-gray-400">${all.length?'Ничего не найдено':'В этой папке пусто'}</div>`;return;}
+  grid.innerHTML=filtered.map(n=>`<article class="card p-4 flex flex-col slide-up cursor-pointer group hover:shadow-md transition-shadow" data-note="${n.id}"><div class="flex items-center gap-1.5">${n.pinned?'<svg viewBox="0 0 24 24" fill="#FF9500" class="w-3.5 h-3.5 shrink-0"><path d="M16 3l5 5-3 1-3 3-1 5-2-2-4 4-1-1 4-4-2-2 5-1 3-3z"/></svg>':''}<h3 class="truncate font-semibold tracking-tight flex-1">${escapeHtml(n.title||'Без заголовка')}</h3></div><p class="mt-2 text-sm text-gray-500 line-clamp-4 flex-1">${escapeHtml(stripMd(n.content).slice(0,200))||'<span class="text-gray-300">Без содержимого</span>'}</p>${(n.tags&&n.tags.length)?`<div class="mt-3 flex flex-wrap gap-1.5">${n.tags.slice(0,4).map(t=>`<span class="chip bg-black/[0.05] text-gray-600">${escapeHtml(t)}</span>`).join('')}</div>`:''}<div class="mt-3 flex items-center justify-between"><span class="text-xs text-gray-400">${fmtDate(n.updated_at)}</span><div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition"><button class="btn btn-ghost !p-1.5" data-action="pin" data-id="${n.id}" title="Закрепить"><svg viewBox="0 0 24 24" fill="${n.pinned?'#FF9500':'none'}" stroke="${n.pinned?'#FF9500':'currentColor'}" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></button><button class="btn btn-ghost !p-1.5 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-action="del" data-id="${n.id}" title="Удалить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></div></article>`).join('');
+  grid.querySelectorAll('[data-note]').forEach(c=>c.addEventListener('click',e=>{if(e.target.closest('[data-action]'))return;openNoteEditor(c.dataset.note);}));
+  grid.querySelectorAll('[data-action="pin"]').forEach(b=>b.addEventListener('click',async e=>{e.stopPropagation();const n=await Notes.get(b.dataset.id);await Notes.save({id:n.id,pinned:!n.pinned,updated_at:nowISO()});toast('Готово','success');renderNotes();}));
+  grid.querySelectorAll('[data-action="del"]').forEach(b=>b.addEventListener('click',async e=>{e.stopPropagation();const ok=await confirmDialog({title:'Удалить заметку?',message:'Действие необратимо.'});if(!ok)return;await Notes.remove(b.dataset.id);toast('Удалено','success');renderNotes();}));
 }
-
-function emptyState(title, message, btnText, onClick) {
-  const id = 'empty-' + uuid();
-  setTimeout(() => { const b = document.getElementById(id); if (b) b.addEventListener('click', onClick); }, 0);
-  return `<div class="col-span-full card p-12 text-center">
-    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-black/[0.04]">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.5" class="w-7 h-7"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg>
-    </div>
-    <h3 class="font-semibold">${escapeHtml(title)}</h3>
-    <p class="mt-1 text-sm text-gray-500">${escapeHtml(message)}</p>
-    <button id="${id}" class="btn btn-primary mt-4">${escapeHtml(btnText)}</button>
-  </div>`;
-}
-
-function openNoteEditor(noteId) {
-  DB.get('notes', noteId).then(async (existing) => {
-    const note = existing || {
-      id: uuid(), userId: state.user.id, title: '', content: '', tags: [], pinned: false,
-      createdAt: nowISO(), updatedAt: nowISO(),
-    };
-    let mode = 'write'; // write | preview
-
-    openModal(`
-      <div class="flex items-center justify-between px-5 h-14 border-b border-black/5">
-        <h3 class="font-semibold tracking-tight">${existing ? 'Редактировать' : 'Новая заметка'}</h3>
-        <button class="btn btn-ghost !p-2" data-close>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-
-      <div class="px-5 pt-4">
-        <input id="note-title" class="w-full text-lg font-semibold tracking-tight outline-none placeholder:text-gray-300 bg-transparent" placeholder="Заголовок" value="${escapeHtml(note.title)}" />
-      </div>
-
-      <div class="px-5 pt-3">
-        <div class="inline-flex rounded-xl bg-black/[0.05] p-1 text-xs font-medium">
-          <button class="seg-edit rounded-lg px-3 py-1 bg-white shadow-sm text-ink" data-mode="write">Текст</button>
-          <button class="seg-edit rounded-lg px-3 py-1 text-gray-500" data-mode="preview">Просмотр</button>
-        </div>
-      </div>
-
-      <div class="px-5 py-3 overflow-y-auto" style="min-height:220px;max-height:50vh">
-        <div id="note-write">
-          <textarea id="note-content" class="w-full resize-none outline-none text-sm leading-relaxed bg-transparent placeholder:text-gray-300" rows="10" placeholder="Пишите здесь… Поддерживается Markdown"># Заголовок
-
-- список
-- **жирный**
-- [ссылка](https://example.com)</textarea>
-        </div>
-        <div id="note-preview" class="md hidden text-sm"></div>
-      </div>
-
-      <div class="px-5 pb-3">
-        <label class="label">Теги (через запятую)</label>
-        <input id="note-tags" class="input" placeholder="работа, идеи" value="${escapeHtml((note.tags || []).join(', '))}" />
-        <label class="flex items-center gap-2 mt-3 cursor-pointer">
-          <input id="note-pinned" type="checkbox" class="rounded accent-[#007AFF]" ${note.pinned ? 'checked' : ''} />
-          <span class="text-sm text-gray-600">Закрепить наверху</span>
-        </label>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2 p-4 border-t border-black/5">
-        <button class="btn btn-ghost" data-close>Отмена</button>
-        <button id="note-save" class="btn btn-primary">Сохранить</button>
-      </div>
-    `, 'lg');
-
-    $('#note-content').value = note.content || '';
-
-    const refreshSeg = () => {
-      $$('.seg-edit').forEach(b => {
-        const active = b.dataset.mode === mode;
-        b.classList.toggle('bg-white', active);
-        b.classList.toggle('shadow-sm', active);
-        b.classList.toggle('text-ink', active);
-        b.classList.toggle('text-gray-500', !active);
-      });
-      $('#note-write').classList.toggle('hidden', mode !== 'write');
-      $('#note-preview').classList.toggle('hidden', mode !== 'preview');
-      if (mode === 'preview') {
-        const raw = $('#note-content').value;
-        $('#note-preview').innerHTML = marked.parse(raw || '*Пусто*');
-      }
-    };
-    $$('.seg-edit').forEach(b => b.addEventListener('click', () => { mode = b.dataset.mode; refreshSeg(); }));
-    $('#note-content').addEventListener('input', () => { if (mode === 'preview') $('#note-preview').innerHTML = marked.parse($('#note-content').value || '*Пусто*'); });
-
-    $('#note-save').addEventListener('click', async () => {
-      const title = $('#note-title').value.trim();
-      if (!title) { toast('Введите заголовок', 'error'); return; }
-      const tags = $('#note-tags').value.split(',').map(t => t.trim()).filter(Boolean);
-      const rec = {
-        id: note.id, userId: state.user.id,
-        title, content: $('#note-content').value, tags,
-        pinned: $('#note-pinned').checked,
-        createdAt: note.createdAt, updatedAt: nowISO(),
-      };
-      await Notes.save(rec);
-      closeModal();
-      toast(existing ? 'Заметка обновлена' : 'Заметка создана', 'success');
-      renderNotes();
-    });
+function emptyState(title,message,btnText,onClick){const id='empty-'+uuid();setTimeout(()=>{const b=document.getElementById(id);if(b)b.addEventListener('click',onClick);},0);return `<div class="col-span-full card p-12 text-center"><div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-black/[0.04]"><svg viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1.5" class="w-7 h-7"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg></div><h3 class="font-semibold">${escapeHtml(title)}</h3><p class="mt-1 text-sm text-gray-500">${escapeHtml(message)}</p><button id="${id}" class="btn btn-primary mt-4">${escapeHtml(btnText)}</button></div>`;}
+function openNoteEditor(noteId){
+  DB_getNote(noteId).then(async(existing)=>{
+    const note=existing||{id:uuid(),user_id:state.user.id,folder_id:state.currentFolder.notes==='root'?null:(state.currentFolder.notes||null),title:'',content:'',tags:[],pinned:false};
+    let mode='write';
+    openModal(`<div class="flex items-center justify-between px-5 h-14 border-b border-black/5"><h3 class="font-semibold tracking-tight">${existing?'Редактировать':'Новая заметка'}</h3><button class="btn btn-ghost !p-2" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="px-5 pt-4"><input id="note-title" class="w-full text-lg font-semibold tracking-tight outline-none placeholder:text-gray-300 bg-transparent" placeholder="Заголовок" value="${escapeHtml(note.title||'')}" /></div><div class="px-5 pt-3"><div class="inline-flex rounded-xl bg-black/[0.05] p-1 text-xs font-medium"><button class="seg-edit rounded-lg px-3 py-1 bg-white shadow-sm text-ink" data-mode="write">Текст</button><button class="seg-edit rounded-lg px-3 py-1 text-gray-500" data-mode="preview">Просмотр</button></div></div><div class="px-5 py-3 overflow-y-auto" style="min-height:220px;max-height:50vh"><div id="note-write"><textarea id="note-content" class="w-full resize-none outline-none text-sm leading-relaxed bg-transparent placeholder:text-gray-300" rows="10" placeholder="Пишите здесь… Поддерживается Markdown"></textarea></div><div id="note-preview" class="md hidden text-sm"></div></div><div class="px-5 pb-3"><label class="label">Теги (через запятую)</label><input id="note-tags" class="input" placeholder="работа, идеи" value="${escapeHtml((note.tags||[]).join(', '))}" /><label class="flex items-center gap-2 mt-3 cursor-pointer"><input id="note-pinned" type="checkbox" class="rounded accent-[#007AFF]" ${note.pinned?'checked':''} /><span class="text-sm text-gray-600">Закрепить наверху</span></label></div><div class="grid grid-cols-2 gap-2 p-4 border-t border-black/5"><button class="btn btn-ghost" data-close>Отмена</button><button id="note-save" class="btn btn-primary">Сохранить</button></div>`,'lg');
+    $('#note-content').value=note.content||'';
+    const refreshSeg=()=>{$$('.seg-edit').forEach(b=>{const a=b.dataset.mode===mode;b.classList.toggle('bg-white',a);b.classList.toggle('shadow-sm',a);b.classList.toggle('text-ink',a);b.classList.toggle('text-gray-500',!a);});$('#note-write').classList.toggle('hidden',mode!=='write');$('#note-preview').classList.toggle('hidden',mode!=='preview');if(mode==='preview')$('#note-preview').innerHTML=marked.parse($('#note-content').value||'*Пусто*');};
+    $$('.seg-edit').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;refreshSeg();}));
+    $('#note-content').addEventListener('input',()=>{if(mode==='preview')$('#note-preview').innerHTML=marked.parse($('#note-content').value||'*Пусто*');});
+    $('#note-save').addEventListener('click',async()=>{const title=$('#note-title').value.trim();if(!title){toast('Введите заголовок','error');return;}const tags=$('#note-tags').value.split(',').map(t=>t.trim()).filter(Boolean);const rec={id:note.id,user_id:state.user.id,folder_id:note.folder_id,title,content:$('#note-content').value,tags,pinned:$('#note-pinned').checked,updated_at:nowISO()};if(!existing)rec.created_at=nowISO();await Notes.save(rec);closeModal();toast(existing?'Заметка обновлена':'Заметка создана','success');renderNotes();});
   });
 }
-/* =====================================================================
-   FINANCE
-===================================================================== */
-async function renderFinance() {
-  const view = $('#view-finance');
-  const [expenses, categories] = await Promise.all([Expenses.list(), Categories.list()]);
-  const catMap = {};
-  categories.forEach(c => catMap[c.name] = c);
-
-  const now = new Date();
-  const monthExpenses = expenses.filter(e => {
-    const d = new Date(e.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
-  const monthTotal = monthExpenses.reduce((s, e) => s + Number(e.amount), 0);
-
-  const byCat = {};
-  monthExpenses.forEach(e => {
-    const k = e.category || 'Другое';
-    byCat[k] = (byCat[k] || 0) + Number(e.amount);
-  });
-
-  view.innerHTML = `
+async function DB_getNote(id){ if(!id)return null; return Notes.get(id); }
+/* ===== ФИНАНСЫ ===== */
+async function renderFinance(){
+  const view=$('#view-finance');
+  const fid=state.currentFolder.finance;
+  const [expenses,categories,folders]=await Promise.all([Expenses.list(fid),Categories.list(),Folders.list('finance')]);
+  const catMap={}; categories.forEach(c=>catMap[c.name]=c);
+  const now=new Date();
+  const monthExp=expenses.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const monthTotal=monthExp.reduce((s,e)=>s+Number(e.amount),0);
+  const byCat={}; monthExp.forEach(e=>{const k=e.category||'Другое';byCat[k]=(byCat[k]||0)+Number(e.amount);});
+  if(state.financeChart){state.financeChart.destroy();state.financeChart=null;}
+  view.innerHTML=`
+    <div id="fin-folder-row">${folderRowHTML(folders,fid,'finance')}</div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div class="card p-5">
-        <p class="text-xs font-medium text-gray-500">Расходы за месяц</p>
-        <p class="mt-2 text-3xl font-semibold tracking-tight">${fmtMoney(monthTotal)}</p>
-        <p class="mt-1 text-xs text-gray-400">${now.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</p>
-      </div>
-      <div class="card p-5">
-        <p class="text-xs font-medium text-gray-500">Транзакций за месяц</p>
-        <p class="mt-2 text-3xl font-semibold tracking-tight">${monthExpenses.length}</p>
-        <p class="mt-1 text-xs text-gray-400">${monthExpenses.length ? 'в среднем ' + fmtMoney(monthTotal / monthExpenses.length) : '—'}</p>
-      </div>
-      <div class="card p-5 flex flex-col">
-        <p class="text-xs font-medium text-gray-500">Категории</p>
-        <div class="mt-2 flex-1 flex items-end">
-          <button id="manage-categories" class="btn btn-ghost w-full">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-            Управление
-          </button>
-        </div>
-      </div>
+      <div class="card p-5"><p class="text-xs font-medium text-gray-500">Расходы за месяц</p><p class="mt-2 text-3xl font-semibold tracking-tight">${fmtMoney(monthTotal)}</p><p class="mt-1 text-xs text-gray-400">${now.toLocaleDateString('ru-RU',{month:'long',year:'numeric'})}</p></div>
+      <div class="card p-5"><p class="text-xs font-medium text-gray-500">Транзакций за месяц</p><p class="mt-2 text-3xl font-semibold tracking-tight">${monthExp.length}</p><p class="mt-1 text-xs text-gray-400">${monthExp.length?'в среднем '+fmtMoney(monthTotal/monthExp.length):'—'}</p></div>
+      <div class="card p-5 flex flex-col"><p class="text-xs font-medium text-gray-500">Категории</p><div class="mt-2 flex-1 flex items-end"><button id="manage-categories" class="btn btn-ghost w-full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Управление</button></div></div>
     </div>
-
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
-      <div class="card p-5 lg:col-span-3">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-medium text-gray-500">Структура расходов</h2>
-          <span class="text-xs text-gray-400">${now.toLocaleDateString('ru-RU', { month: 'long' })}</span>
-        </div>
-        ${Object.keys(byCat).length
-          ? `<div class="relative h-72"><canvas id="fin-chart"></canvas></div>`
-          : `<div class="h-72 flex flex-col items-center justify-center text-center text-gray-400">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 mb-3 opacity-50"><path d="M21 12a9 9 0 1 1-9-9v9z"/></svg>
-              <p class="text-sm">Нет данных за месяц</p>
-            </div>`}
-      </div>
-
-      <div class="card p-5 lg:col-span-2">
-        <h2 class="text-sm font-medium text-gray-500 mb-4">Добавить расход</h2>
-        <form id="add-expense-form" class="space-y-3">
-          <div>
-            <label class="label">Сумма</label>
-            <div class="relative">
-              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₽</span>
-              <input id="exp-amount" class="input pl-8" type="number" min="1" step="1" placeholder="0" required />
-            </div>
-          </div>
-          <div>
-            <label class="label">Категория</label>
-            <div class="grid grid-cols-2 gap-1.5" id="cat-picker">
-              ${categories.map(c => `
-                <button type="button" class="cat-pill flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-sm transition hover:bg-black/[0.03]" data-cat="${escapeHtml(c.name)}" data-color="${c.color}">
-                  <span>${c.icon || '●'}</span>
-                  <span class="truncate">${escapeHtml(c.name)}</span>
-                </button>`).join('')}
-            </div>
-          </div>
-          <div>
-            <label class="label">Дата</label>
-            <input id="exp-date" class="input" type="date" required />
-          </div>
-          <div>
-            <label class="label">Комментарий (необязательно)</label>
-            <input id="exp-note" class="input" placeholder="Напр. обед" />
-          </div>
-          <button type="submit" class="btn btn-primary w-full">Добавить</button>
-        </form>
-      </div>
+      <div class="card p-5 lg:col-span-3"><div class="flex items-center justify-between mb-4"><h2 class="text-sm font-medium text-gray-500">Структура расходов</h2><span class="text-xs text-gray-400">${now.toLocaleDateString('ru-RU',{month:'long'})}</span></div>${Object.keys(byCat).length?`<div class="relative h-72"><canvas id="fin-chart"></canvas></div>`:`<div class="h-72 flex flex-col items-center justify-center text-center text-gray-400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-12 h-12 mb-3 opacity-50"><path d="M21 12a9 9 0 1 1-9-9v9z"/></svg><p class="text-sm">Нет данных за месяц</p></div>`}</div>
+      <div class="card p-5 lg:col-span-2"><h2 class="text-sm font-medium text-gray-500 mb-4">Добавить расход</h2><form id="add-expense-form" class="space-y-3"><div><label class="label">Сумма</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₽</span><input id="exp-amount" class="input pl-8" type="number" min="1" step="1" placeholder="0" required /></div></div><div><label class="label">Категория</label><div class="grid grid-cols-2 gap-1.5" id="cat-picker">${categories.map(c=>`<button type="button" class="cat-pill flex items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-sm transition hover:bg-black/[0.03]" data-cat="${escapeHtml(c.name)}" data-color="${c.color}"><span>${c.icon||'●'}</span><span class="truncate">${escapeHtml(c.name)}</span></button>`).join('')}</div></div><div><label class="label">Дата</label><input id="exp-date" class="input" type="date" required /></div><div><label class="label">Комментарий (необязательно)</label><input id="exp-note" class="input" placeholder="Напр. обед" /></div><button type="submit" class="btn btn-primary w-full">Добавить</button></form></div>
     </div>
-
-    <div class="card overflow-hidden">
-      <div class="flex items-center justify-between px-5 h-12 border-b border-black/5">
-        <h2 class="text-sm font-medium text-gray-500">Последние операции</h2>
-        <span class="text-xs text-gray-400">${monthExpenses.length} за месяц</span>
-      </div>
-      ${expenses.length
-        ? `<ul class="divide-y divide-black/5">
-            ${expenses.slice(0, 30).map(e => {
-              const cat = catMap[e.category];
-              return `<li class="flex items-center gap-3 px-5 py-3 hover:bg-black/[0.02]">
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base" style="background:${(cat && cat.color) || '#8E8E93'}22;color:${(cat && cat.color) || '#8E8E93'}">${(cat && cat.icon) || '●'}</div>
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-medium">${escapeHtml(e.category || 'Другое')}${e.note ? ' · <span class="text-gray-400">' + escapeHtml(e.note) + '</span>' : ''}</p>
-                  <p class="text-xs text-gray-400">${fmtDateFull(e.date)}</p>
-                </div>
-                <span class="font-semibold text-sm">${fmtMoney(e.amount)}</span>
-                <button class="btn btn-ghost !p-1.5 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-del-exp="${e.id}" title="Удалить">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-              </li>`;
-            }).join('')}
-          </ul>`
-        : `<div class="p-10 text-center text-sm text-gray-400">Операций пока нет</div>`}
-    </div>
+    <div class="card overflow-hidden"><div class="flex items-center justify-between px-5 h-12 border-b border-black/5"><h2 class="text-sm font-medium text-gray-500">Последние операции</h2><span class="text-xs text-gray-400">${monthExp.length} за месяц</span></div>${expenses.length?`<ul class="divide-y divide-black/5">${expenses.slice(0,30).map(e=>{const cat=catMap[e.category];return `<li class="flex items-center gap-3 px-5 py-3 hover:bg-black/[0.02]"><div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base" style="background:${(cat&&cat.color)||'#8E8E93'}22;color:${(cat&&cat.color)||'#8E8E93'}">${(cat&&cat.icon)||'●'}</div><div class="min-w-0 flex-1"><p class="truncate text-sm font-medium">${escapeHtml(e.category||'Другое')}${e.note?' · <span class="text-gray-400">'+escapeHtml(e.note)+'</span>':''}</p><p class="text-xs text-gray-400">${fmtDateFull(e.date)}</p></div><span class="font-semibold text-sm">${fmtMoney(e.amount)}</span><button class="btn btn-ghost !p-1.5 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-del-exp="${e.id}" title="Удалить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></li>`;}).join('')}</ul>`:`<div class="p-10 text-center text-sm text-gray-400">Операций пока нет</div>`}</div>
   `;
-
-  // default date today
-  $('#exp-date').value = now.toISOString().slice(0, 10);
-
-  // category picker
-  let selectedCat = categories[0] ? categories[0].name : null;
-  const refreshPicker = () => {
-    $$('.cat-pill').forEach(p => {
-      const active = p.dataset.cat === selectedCat;
-      p.style.borderColor = active ? p.dataset.color : '';
-      p.style.background = active ? p.dataset.color + '14' : '';
-    });
-  };
-  refreshPicker();
-  $$('.cat-pill').forEach(p => p.addEventListener('click', () => { selectedCat = p.dataset.cat; refreshPicker(); }));
-
-  // chart
-  if (Object.keys(byCat).length) {
-    const ctx = $('#fin-chart');
-    const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-    state.financeChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: entries.map(e => e[0]),
-        datasets: [{
-          data: entries.map(e => e[1]),
-          backgroundColor: entries.map(e => (catMap[e[0]] && catMap[e[0]].color) || '#8E8E93'),
-          borderWidth: 2, borderColor: '#ffffff', hoverOffset: 8,
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '58%',
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 12 } }
-          },
-          tooltip: {
-            backgroundColor: '#1d1d1f', padding: 12, cornerRadius: 12,
-            callbacks: {
-              label: (c) => {
-                const total = c.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = total ? ((c.parsed / total) * 100).toFixed(0) : 0;
-                return ` ${fmtMoney(c.parsed)} · ${pct}%`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  $('#add-expense-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const amount = Number($('#exp-amount').value);
-    if (!amount || amount <= 0) { toast('Введите сумму', 'error'); return; }
-    if (!selectedCat) { toast('Выберите категорию', 'error'); return; }
-    const rec = {
-      id: uuid(), userId: state.user.id,
-      amount, category: selectedCat,
-      date: new Date($('#exp-date').value + 'T12:00:00').toISOString(),
-      note: $('#exp-note').value.trim(),
-      createdAt: nowISO(),
-    };
-    await Expenses.save(rec);
-    toast('Расход добавлен', 'success');
-    renderFinance();
-  });
-
-  view.querySelectorAll('[data-del-exp]').forEach(b => b.addEventListener('click', async () => {
-    const ok = await confirmDialog({ title: 'Удалить операцию?', message: 'Запись о расходе будет удалена.' });
-    if (!ok) return;
-    await Expenses.remove(b.dataset.delExp);
-    toast('Удалено', 'success');
-    renderFinance();
-  }));
-
-  $('#manage-categories').addEventListener('click', () => openCategoryManager(categories));
+  wireFolders($('#fin-folder-row'),'finance',()=>renderFinance());
+  $('#exp-date').value=now.toISOString().slice(0,10);
+  let selectedCat=categories[0]?categories[0].name:null;
+  const refreshPicker=()=>{$$('.cat-pill').forEach(p=>{const a=p.dataset.cat===selectedCat;p.style.borderColor=a?p.dataset.color:'';p.style.background=a?p.dataset.color+'14':'';});};refreshPicker();
+  $$('.cat-pill').forEach(p=>p.addEventListener('click',()=>{selectedCat=p.dataset.cat;refreshPicker();}));
+  if(Object.keys(byCat).length){const ctx=$('#fin-chart');const entries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);state.financeChart=new Chart(ctx,{type:'doughnut',data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:entries.map(e=>(catMap[e[0]]&&catMap[e[0]].color)||'#8E8E93'),borderWidth:2,borderColor:'#ffffff',hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'circle',padding:14,font:{size:12}}},tooltip:{backgroundColor:'#1d1d1f',padding:12,cornerRadius:12,callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);const pct=t?((c.parsed/t)*100).toFixed(0):0;return ` ${fmtMoney(c.parsed)} · ${pct}%`;}}}}}});}
+  $('#add-expense-form').addEventListener('submit',async e=>{e.preventDefault();const amount=Number($('#exp-amount').value);if(!amount||amount<=0){toast('Введите сумму','error');return;}if(!selectedCat){toast('Выберите категорию','error');return;}const rec={id:uuid(),user_id:state.user.id,folder_id:fid==='root'?null:(fid||null),amount,category:selectedCat,date:new Date($('#exp-date').value+'T12:00:00').toISOString(),note:$('#exp-note').value.trim(),created_at:nowISO()};await Expenses.save(rec);toast('Расход добавлен','success');});
+  view.querySelectorAll('[data-del-exp]').forEach(b=>b.addEventListener('click',async()=>{const ok=await confirmDialog({title:'Удалить операцию?',message:'Запись будет удалена.'});if(!ok)return;await Expenses.remove(b.dataset.delExp);toast('Удалено','success');}));
+  $('#manage-categories').addEventListener('click',()=>openCategoryManager(categories));
+}
+function openCategoryManager(categories){
+  const renderList=list=>list.map(c=>`<div class="flex items-center gap-3 rounded-xl border border-black/5 px-3 py-2.5"><span class="flex h-8 w-8 items-center justify-center rounded-lg text-base" style="background:${c.color}22;color:${c.color}">${c.icon||'●'}</span><span class="flex-1 text-sm font-medium">${escapeHtml(c.name)}</span><button class="btn btn-ghost !p-1.5 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-del-cat="${c.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div>`).join('');
+  openModal(`<div class="flex items-center justify-between px-5 h-14 border-b border-black/5"><h3 class="font-semibold tracking-tight">Категории</h3><button class="btn btn-ghost !p-2" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="p-5 overflow-y-auto" style="max-height:60vh"><div id="cat-list" class="space-y-2">${renderList(categories)}</div><div class="mt-5 pt-5 border-t border-black/5"><p class="label">Новая категория</p><div class="flex gap-2"><input id="cat-icon" class="input !w-14 text-center" maxlength="2" placeholder="●" /><input id="cat-name" class="input flex-1" placeholder="Название" /><input id="cat-color" type="color" value="#007AFF" class="h-[42px] w-12 shrink-0 rounded-xl border border-black/10 bg-white cursor-pointer" /></div><button id="cat-add" class="btn btn-primary w-full mt-2">Добавить категорию</button></div></div>`);
+  $('#cat-add').addEventListener('click',async()=>{const name=$('#cat-name').value.trim();if(!name){toast('Введите название','error');return;}if(categories.some(c=>c.name.toLowerCase()===name.toLowerCase())){toast('Уже есть','error');return;}await Categories.save({id:uuid(),user_id:state.user.id,name,icon:$('#cat-icon').value.trim()||'●',color:$('#cat-color').value});toast('Добавлено','success');closeModal();});
+  $('#modal-root').querySelectorAll('[data-del-cat]').forEach(b=>b.addEventListener('click',async()=>{const ok=await confirmDialog({title:'Удалить категорию?',message:'Расходы станут «Другое».'});if(!ok)return;await Categories.remove(b.dataset.delCat);toast('Удалено','success');closeModal();}));
 }
 
-function openCategoryManager(categories) {
-  const renderList = (list) => list.map(c => `
-    <div class="flex items-center gap-3 rounded-xl border border-black/5 px-3 py-2.5">
-      <span class="flex h-8 w-8 items-center justify-center rounded-lg text-base" style="background:${c.color}22;color:${c.color}">${c.icon || '●'}</span>
-      <span class="flex-1 text-sm font-medium">${escapeHtml(c.name)}</span>
-      <button class="btn btn-ghost !p-1.5 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-del-cat="${c.id}" title="Удалить">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-      </button>
-    </div>`).join('');
-
-  openModal(`
-    <div class="flex items-center justify-between px-5 h-14 border-b border-black/5">
-      <h3 class="font-semibold tracking-tight">Категории</h3>
-      <button class="btn btn-ghost !p-2" data-close>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    <div class="p-5 overflow-y-auto" style="max-height:60vh">
-      <div id="cat-list" class="space-y-2">${renderList(categories)}</div>
-
-      <div class="mt-5 pt-5 border-t border-black/5">
-        <p class="label">Новая категория</p>
-        <div class="flex gap-2">
-          <input id="cat-icon" class="input !w-14 text-center" maxlength="2" placeholder="●" />
-          <input id="cat-name" class="input flex-1" placeholder="Название" />
-          <input id="cat-color" type="color" value="#007AFF" class="h-[42px] w-12 shrink-0 rounded-xl border border-black/10 bg-white cursor-pointer" />
-        </div>
-        <button id="cat-add" class="btn btn-primary w-full mt-2">Добавить категорию</button>
-      </div>
-    </div>
-  `);
-
-  $('#cat-add').addEventListener('click', async () => {
-    const name = $('#cat-name').value.trim();
-    if (!name) { toast('Введите название', 'error'); return; }
-    const exists = categories.some(c => c.name.toLowerCase() === name.toLowerCase());
-    if (exists) { toast('Категория уже есть', 'error'); return; }
-    const rec = {
-      id: uuid(), userId: state.user.id,
-      name, icon: $('#cat-icon').value.trim() || '●',
-      color: $('#cat-color').value,
-    };
-    await Categories.save(rec);
-    toast('Категория добавлена', 'success');
-    categories.push(rec);
-    closeModal();
-    openCategoryManager(categories);
-  });
-
-  $('#modal-root').querySelectorAll('[data-del-cat]').forEach(b => b.addEventListener('click', async () => {
-    const ok = await confirmDialog({ title: 'Удалить категорию?', message: 'Расходы этой категории станут «Другое».' });
-    if (!ok) return;
-    await Categories.remove(b.dataset.delCat);
-    // обнуляем категорию у связанных расходов
-    const exps = await Expenses.list();
-    for (const e of exps) {
-      // имя категории по id найти нельзя напрямую; ищем удалённую запись
-    }
-    toast('Удалено', 'success');
-    closeModal();
-    renderFinance();
-  }));
+/* ===== МЕДИА ===== */
+const IMG_EXT=['jpg','jpeg','png','gif','webp','svg','bmp','ico','avif'];
+function isImageType(type,name){return (type&&type.startsWith('image/'))||IMG_EXT.includes(ext(name));}
+function fileIcon(name){
+  const e=ext(name);
+  if(['pdf'].includes(e))return{c:'#FF3B30',s:'PDF'};
+  if(['doc','docx','rtf'].includes(e))return{c:'#007AFF',s:'DOC'};
+  if(['xls','xlsx','csv'].includes(e))return{c:'#34C759',s:'XLS'};
+  if(['zip','rar','7z','tar','gz'].includes(e))return{c:'#8E8E93',s:'ZIP'};
+  if(['mp4','mov','avi','mkv','webm'].includes(e))return{c:'#AF52DE',s:'VID'};
+  if(['mp3','wav','flac','ogg','m4a'].includes(e))return{c:'#FF9500',s:'AUD'};
+  if(['txt','md'].includes(e))return{c:'#6e6e73',s:'TXT'};
+  if(IMG_EXT.includes(e))return{c:'#5856D6',s:'IMG'};
+  return{c:'#8E8E93',s:e?e.slice(0,3).toUpperCase():'FILE'};
 }
-
-/* =====================================================================
-   MEDIA
-===================================================================== */
-const ACCEPTED_IMG = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml','image/bmp'];
-
-async function renderMedia() {
-  const view = $('#view-media');
-  const media = await Media.list();
-
-  view.innerHTML = `
+async function renderMedia(){
+  const view=$('#view-media');
+  const fid=state.currentFolder.media;
+  const [media,folders]=await Promise.all([Media.list(fid),Folders.list('media')]);
+  const totalSize=media.reduce((s,m)=>s+(m.size||0),0);
+  view.innerHTML=`
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h2 class="text-lg font-semibold tracking-tight">Галерея</h2>
-        <p class="text-sm text-gray-500">${media.length} файл(ов) · ${fmtBytes(media.reduce((s, m) => s + (m.size || 0), 0))}</p>
-      </div>
-      <label class="btn btn-primary cursor-pointer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Загрузить
-        <input id="media-input" type="file" accept="image/*" multiple class="hidden" />
-      </label>
+      <div><h2 class="text-lg font-semibold tracking-tight">Галерея</h2><p class="text-sm text-gray-500">${media.length} файл(ов) · ${fmtBytes(totalSize)}</p></div>
+      <label class="btn btn-primary cursor-pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Загрузить<input id="media-input" type="file" multiple class="hidden" /></label>
     </div>
-
-    ${media.length
-      ? `<div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          ${media.map(m => {
-            const isImg = m.type && m.type.startsWith('image/');
-            return `<div class="card overflow-hidden group slide-up" data-media-card="${m.id}">
-              <div class="relative aspect-square bg-black/[0.03]">
-                ${isImg
-                  ? `<img alt="" class="h-full w-full object-cover cursor-pointer" data-preview="${m.id}" />`
-                  : `<div class="flex h-full flex-col items-center justify-center text-gray-400">
-                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8 mb-1"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg>
-                       <span class="text-[10px] uppercase">${escapeHtml((m.type || 'file').split('/')[1] || 'file')}</span>
-                     </div>`}
-                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
-                  <button class="btn btn-ghost !bg-white/90" data-preview="${m.id}">Открыть</button>
-                </div>
-              </div>
-              <div class="flex items-center gap-2 px-3 py-2">
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-xs font-medium">${escapeHtml(m.filename)}</p>
-                  <p class="text-[10px] text-gray-400">${fmtBytes(m.size)}</p>
-                </div>
-                <button class="btn btn-ghost !p-1 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-del-media="${m.id}" title="Удалить">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-3.5 h-3.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-                </button>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>`
-      : emptyState('Галерея пуста', 'Загрузите изображения — они хранятся прямо в браузере (IndexedDB).', 'Выбрать файлы', () => $('#media-input').click())}
+    <div id="media-folder-row">${folderRowHTML(folders,fid,'media')}</div>
+    ${media.length?`<div id="media-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">${media.map(m=>{const img=isImageType(m.type,m.filename);const ic=fileIcon(m.filename);return `<div class="card overflow-hidden group slide-up" data-media-card="${m.id}"><div class="relative aspect-square bg-black/[0.03]">${img?`<img alt="" class="h-full w-full object-cover cursor-pointer" data-preview="${m.id}" src="${Media.url(m.storage_path)}" />`:`<div class="flex h-full flex-col items-center justify-center" style="color:${ic.c}"><div class="text-xs font-bold px-2 py-1 rounded-md mb-1" style="background:${ic.c}22">${ic.s}</div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-8 h-8 opacity-60"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg></div>`}<div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition"><button class="btn btn-ghost !bg-white/90" data-preview="${m.id}">Открыть</button></div></div><div class="flex items-center gap-2 px-3 py-2"><div class="min-w-0 flex-1"><p class="truncate text-xs font-medium">${escapeHtml(m.filename)}</p><p class="text-[10px] text-gray-400">${fmtBytes(m.size)}</p></div><button class="btn btn-ghost !p-1 hover:!bg-[#FF3B30]/10 hover:!text-[#FF3B30]" data-del-media="${m.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-3.5 h-3.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></div>`;}).join('')}</div>`:emptyState('Галерея пуста','Загрузите файлы любого типа — они хранятся в облаке и синхронизируются.','Выбрать файлы',()=>$('#media-input').click())}
   `;
-
-  // load image thumbnails
-  media.forEach(async m => {
-    if (!(m.type && m.type.startsWith('image/'))) return;
-    const full = await Media.get(m.id);
-    if (full && full.blob) {
-      const url = URL.createObjectURL(full.blob);
-      state.mediaObjectUrls.push(url);
-      view.querySelectorAll(`[data-preview="${m.id}"]`).forEach(img => { if (img.tagName === 'IMG') img.src = url; });
-    }
-  });
-
-  $('#media-input').addEventListener('change', async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    let count = 0;
-    for (const file of files) {
-      const isImg = ACCEPTED_IMG.includes(file.type) || file.type.startsWith('image/');
-      if (!isImg) { toast(`Пропущен: ${file.name}`, 'error'); continue; }
-      const rec = {
-        id: uuid(), userId: state.user.id,
-        filename: file.name, type: file.type, size: file.size,
-        blob: file, createdAt: nowISO(),
-      };
-      await Media.save(rec);
-      count++;
-    }
-    if (count) toast(`Загружено: ${count}`, 'success');
-    renderMedia();
-  });
-
-  view.querySelectorAll('[data-preview]').forEach(b => b.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const full = await Media.get(b.dataset.preview);
-    if (full) openMediaPreview(full);
-  }));
-  view.querySelectorAll('[data-del-media]').forEach(b => b.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const ok = await confirmDialog({ title: 'Удалить файл?', message: 'Файл будет удалён безвозвратно.' });
-    if (!ok) return;
-    await Media.remove(b.dataset.delMedia);
-    toast('Файл удалён', 'success');
-    renderMedia();
-  }));
+  wireFolders($('#media-folder-row'),'media',()=>renderMedia());
+  $('#media-input').addEventListener('change',async e=>{const files=Array.from(e.target.files||[]);if(!files.length)return;let count=0;for(const file of files){const rec={id:uuid(),user_id:state.user.id,folder_id:fid==='root'?null:(fid||null),filename:file.name,type:file.type,size:file.size,storage_path:'',created_at:nowISO()};try{await Media.upload(file,rec);count++;}catch(err){console.warn(err);toast('Ошибка: '+file.name,'error');}}e.target.value='';if(count){toast(`Загружено: ${count}`,'success');}});
+  view.querySelectorAll('[data-preview]').forEach(b=>b.addEventListener('click',async e=>{e.stopPropagation();const full=await Media.get(b.dataset.preview);if(full)openMediaPreview(full);}));
+  view.querySelectorAll('[data-del-media]').forEach(b=>b.addEventListener('click',async e=>{e.stopPropagation();const ok=await confirmDialog({title:'Удалить файл?',message:'Файл удалится безвозвратно.'});if(!ok)return;const m=await Media.get(b.dataset.delMedia);if(m&&m.storage_path){try{await sb.storage.from('media').remove([m.storage_path]);}catch(e){}}await Media.remove(b.dataset.delMedia);toast('Удалено','success');}));
+}
+function openMediaPreview(m){
+  const url=Media.url(m.storage_path);
+  const img=isImageType(m.type,m.filename);
+  const ic=fileIcon(m.filename);
+  openModal(`<div class="flex items-center justify-between px-5 h-14 border-b border-black/5"><div class="min-w-0"><h3 class="truncate font-semibold tracking-tight">${escapeHtml(m.filename)}</h3><p class="text-xs text-gray-400">${fmtBytes(m.size)} · ${fmtDateFull(m.created_at)}</p></div><button class="btn btn-ghost !p-2" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="bg-black/[0.03] p-4 flex items-center justify-center" style="max-height:70vh">${img?`<img src="${url}" alt="${escapeHtml(m.filename)}" class="max-w-full max-h-[60vh] rounded-xl object-contain" />`:`<div class="text-center" style="color:${ic.c}"><div class="text-2xl font-bold px-3 py-2 rounded-xl mb-3 inline-block" style="background:${ic.c}22">${ic.s}</div><p class="text-sm text-gray-500 mb-2">Предпросмотр недоступен для этого типа</p></div>`}</div><div class="grid grid-cols-2 gap-2 p-4 border-t border-black/5"><a href="${url}" download="${encodeURIComponent(m.filename)}" target="_blank" class="btn btn-primary">Скачать</a><button class="btn btn-ghost" data-close>Закрыть</button></div>`,'lg');
 }
 
-function openMediaPreview(media) {
-  const url = URL.createObjectURL(media.blob);
-  state.mediaObjectUrls.push(url);
-  openModal(`
-    <div class="flex items-center justify-between px-5 h-14 border-b border-black/5">
-      <div class="min-w-0">
-        <h3 class="truncate font-semibold tracking-tight">${escapeHtml(media.filename)}</h3>
-        <p class="text-xs text-gray-400">${fmtBytes(media.size)} · ${fmtDateFull(media.createdAt)}</p>
-      </div>
-      <button class="btn btn-ghost !p-2" data-close>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-4 h-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    <div class="bg-black/[0.03] p-4 flex items-center justify-center" style="max-height:70vh">
-      <img src="${url}" alt="${escapeHtml(media.filename)}" class="max-w-full max-h-[60vh] rounded-xl object-contain" />
-    </div>
-    <div class="grid grid-cols-2 gap-2 p-4 border-t border-black/5">
-      <a href="${url}" download="${encodeURIComponent(media.filename)}" class="btn btn-primary">Скачать</a>
-      <button class="btn btn-ghost" data-close>Закрыть</button>
-    </div>
-  `, 'lg');
+/* ===== НАВИГАЦИЯ ===== */
+function setupNav(){
+  $$('.nav-item').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));
+  $('#menu-btn').addEventListener('click',openMobileSidebar);
+  $('#sidebar-overlay').addEventListener('click',closeMobileSidebar);
 }
 
-/* =====================================================================
-   NAV WIRING
-===================================================================== */
-function setupNav() {
-  $$('.nav-item').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
-  $('#menu-btn').addEventListener('click', openMobileSidebar);
-  $('#sidebar-overlay').addEventListener('click', closeMobileSidebar);
-}
-
-/* =====================================================================
-   BOOT
-===================================================================== */
-async function boot() {
+/* ===== ЗАПУСК ===== */
+async function boot(){
   setupAuthScreen();
   setupNav();
-  try {
-    await DB.open();
+  try{
+    if(!window.supabase){throw new Error('no supabase');}
     await ensureAdmin();
-    const restored = await restoreSession();
-    if (restored) {
-      showApp();
-    } else {
-      $('#auth-screen').classList.remove('hidden');
-    }
-  } catch (err) {
-    console.error(err);
-    const view = $('#auth-screen');
-    const banner = document.createElement('div');
-    banner.className = 'mt-4 rounded-2xl bg-[#FF3B30]/10 px-4 py-3 text-center text-sm text-[#FF3B30]';
-    banner.textContent = 'Не удалось открыть локальную базу данных. Проверьте, что браузер поддерживает IndexedDB и не в приватном режиме.';
-    view.querySelector('.max-w-sm').appendChild(banner);
+    const restored=await restoreSession();
+    if(restored){showApp();}
+    else{$('#auth-screen').classList.remove('hidden');}
+  }catch(e){
+    console.error(e);
+    const banner=document.createElement('div');
+    banner.className='mt-4 rounded-2xl bg-[#FF3B30]/10 px-4 py-3 text-center text-sm text-[#FF3B30]';
+    banner.textContent='Не удалось подключиться к Supabase. Проверьте, что в начале файла вставлены SUPABASE_URL и SUPABASE_KEY, и что интернет работает.';
+    $('#auth-screen').querySelector('.max-w-sm').appendChild(banner);
   }
 }
-
-document.addEventListener('DOMContentLoaded', boot);
+document.addEventListener('DOMContentLoaded',boot);
 
 })();
 </script>
