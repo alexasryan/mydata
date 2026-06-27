@@ -323,11 +323,25 @@ function transliterateFilename(filename) {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 }
-  const Media = {
+
+const Media = {
   async list(folderId){ let q=sb.from('media').select('*').eq('user_id',state.user.id).order('created_at',{ascending:false}); if(folderId==='root')q=q.is('folder_id',null); else if(folderId)q=q.eq('folder_id',folderId); const { data }=await q; return data||[]; },
   async get(id){ const { data }=await sb.from('media').select('*').eq('id',id).maybeSingle(); return data; },
   remove(id){ return sb.from('media').delete().eq('id',id); },
-  async upload(file, rec){ const safeFilename = transliterateFilename(rec.filename) || 'file'; const path=`${state.user.id}/${rec.id}/${rec.filename}`; const { error }=await sb.storage.from('media').upload(path, file, { upsert:true, contentType:file.type||'application/octet-stream' }); if(error){ if(String(error.message).includes('already')){ await sb.storage.from('media').remove([path]); await sb.storage.from('media').upload(path,file,{upsert:true,contentType:file.type||'application/octet-stream'}); } else { throw error; } } rec.storage_path=path; await sb.from('media').insert(rec); return path; },
+  async upload(file, rec){ 
+    const safeFilename = transliterateFilename(rec.filename) || 'file';
+    const path=`${state.user.id}/${rec.id}/${safeFilename}`; 
+    const { error }=await sb.storage.from('media').upload(path, file, { upsert:true, contentType:file.type||'application/octet-stream' }); 
+    if(error){ 
+      if(String(error.message).includes('already')){ 
+        await sb.storage.from('media').remove([path]); 
+        await sb.storage.from('media').upload(path,file,{upsert:true,contentType:file.type||'application/octet-stream'}); 
+      } else { throw error; } 
+    } 
+    rec.storage_path=path; 
+    await sb.from('media').insert(rec); 
+    return path; 
+  },
   url(path){ try{ return sb.storage.from('media').getPublicUrl(path).data.publicUrl; }catch(e){ return ''; } },
 };
 const Folders = {
